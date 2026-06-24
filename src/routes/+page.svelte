@@ -42,7 +42,7 @@
 					<h1
 						class="text-4xl font-extrabold leading-tight text-blue-950 sm:text-5xl lg:text-6xl"
 					>
-						Lab Equipment
+						Lab Equioment
 						<span class="text-sky-600">Booking System</span>
 					</h1>
 
