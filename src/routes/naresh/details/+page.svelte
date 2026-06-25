@@ -1,1 +1,1 @@
-This is from Details inside Naresh route. Modified by Prakash Raj
+This is from Details inside Naresh route. Modified by Prakash
