@@ -5,22 +5,26 @@
 {#if open}
 
 	<div
-		class="fixed inset-0 z-[60] flex items-center justify-center"
+		class="fixed inset-0 z-[60] flex items-center justify-center px-4"
 	>
 
 		<div
-			class="rounded-3xl bg-green-600 px-10 py-8 text-center text-white shadow-2xl"
+			class="w-full max-w-xs rounded-3xl bg-green-600 px-6 py-5 text-center text-white shadow-2xl sm:max-w-sm sm:px-8 sm:py-6"
 		>
 
-			<div class="mb-3 text-6xl">
+			<div class="mb-3 text-5xl">
 				✅
 			</div>
 
-			<h2 class="text-2xl font-bold">
+			<h2
+				class="text-xl font-bold sm:text-2xl"
+			>
 				Booking Confirmed
 			</h2>
 
-			<p class="mt-2">
+			<p
+				class="mt-2 text-sm sm:text-base"
+			>
 				Your booking has been submitted successfully.
 			</p>
 

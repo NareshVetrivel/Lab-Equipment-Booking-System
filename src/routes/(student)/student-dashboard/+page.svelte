@@ -3,6 +3,18 @@
 	import StudentNavbar from '$lib/components/StudentNavbar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 
+	const today = new Date();
+
+	const currentDate = today.toLocaleDateString('en-IN', {
+		day: '2-digit',
+		month: 'long',
+		year: 'numeric'
+	});
+
+	const currentDay = today.toLocaleDateString('en-IN', {
+		weekday: 'long'
+	});
+
 	const student = {
 		name: 'Naresh S',
 		registerNumber: '23MCA101',
@@ -60,7 +72,7 @@
 
 	<StudentNavbar />
 
-	<main class="mx-auto max-w-7xl px-4 py-8">
+	<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 
 		<!-- Welcome Card -->
 
@@ -68,7 +80,7 @@
 			<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
 				<div>
-					<h2 class="text-3xl font-bold text-blue-900">
+					<h2 class="text-2xl font-bold text-blue-900 sm:text-3xl">
 						👋 Welcome, Student!
 					</h2>
 
@@ -78,15 +90,15 @@
 				</div>
 
 				<div
-					class="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-4 text-center shadow-sm"
+					class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-center shadow-sm sm:px-6 sm:py-4"
 				>
-					<p class="text-xl font-bold text-slate-800">
-						25 June 2026
-					</p>
+<p class="text-xl font-bold text-slate-800">
+	{currentDate}
+</p>
 
-					<p class="text-slate-500">
-						Thrusday
-					</p>
+<p class="text-slate-500">
+	{currentDay}
+</p>
 				</div>
 
 			</div>
@@ -98,7 +110,7 @@
 
 <!-- Student Card -->
 
-<div class="h-[500px] rounded-3xl bg-white p-6 shadow-lg">
+<div class="rounded-3xl bg-white p-5 shadow-lg sm:p-6 lg:min-h-[500px]">
 
 	<h2 class="mb-6 text-2xl font-bold text-blue-700">
 		🪪 E-LAB STUDENT CARD
@@ -109,7 +121,7 @@
 		<!-- Photo -->
 
 		<div
-			class="h-48 w-36 overflow-hidden rounded-xl border-4 border-blue-100 shadow-md"
+			class="mx-auto h-40 w-32 overflow-hidden rounded-xl border-4 border-blue-100 shadow-md sm:mx-0 sm:h-48 sm:w-36"
 		>
 			<img
 				src={student.photo}
@@ -122,7 +134,7 @@
 
 		<div class="flex-1">
 
-			<div class="space-y-4 text-lg">
+			<div class="space-y-4 text-base sm:text-lg">
 
 				<p>
 					<span class="font-bold text-blue-900">
@@ -175,7 +187,7 @@
 	<div class="mt-12 flex justify-center">
 
 		<div
-			class="w-full max-w-md rounded-xl bg-green-600 py-3 text-center text-lg font-bold text-white shadow-md"
+			class="w-full max-w-md rounded-xl bg-green-600 py-3 text-center text-base font-bold text-white shadow-md sm:text-lg"
 		>
 			● STATUS : {student.status}
 		</div>
@@ -186,40 +198,42 @@
 
 			<!-- Rules -->
 
-			<div class="h-[500px] rounded-3xl bg-white p-6 shadow-lg">
+			<div class="rounded-3xl bg-white p-5 shadow-lg sm:p-6 lg:min-h-[500px]">
 
 				<h2 class="mb-6 text-2xl font-bold text-blue-700">
 					🛡️ LAB RULES & REGULATIONS
 				</h2>
 
-				<div class="h-[400px] space-y-3 overflow-y-auto pr-2"
-					style="scrollbar-width: thin;">
+<div
+	class="h-72 overflow-y-auto pr-2 sm:h-80 lg:h-[380px]"
+	style="scrollbar-width: thin;"
+>
+	<div class="space-y-3">
 
-					{#each rules as rule (rule)}
+		{#each rules as rule (rule)}
 
-						<div
-							class="flex items-start gap-3 rounded-xl bg-blue-50 p-3"
-						>
-							<span class="font-bold text-green-600">
-								✔
-							</span>
+			<div
+				class="flex items-start gap-3 rounded-xl bg-blue-50 p-3"
+			>
+				<span class="font-bold text-green-600">
+					✔
+				</span>
 
-							<span>
-								{rule}
-							</span>
-						</div>
-
-					{/each}
-
-				</div>
-
+				<span>
+					{rule}
+				</span>
 			</div>
+
+		{/each}
+
+	</div>
+</div>
 
 		</div>
 
 		<!-- Fine Policy -->
 
-		<div class="rounded-3xl bg-white p-8 shadow-lg">
+		<div class="rounded-3xl bg-white p-5 shadow-lg sm:p-8">
 
 			<h2 class="mb-6 text-2xl font-bold text-red-700">
 				⚠️ Fine & Damage Policy
@@ -282,7 +296,7 @@
 		<!-- Important Note -->
 
 		<div
-			class="mt-8 rounded-3xl border border-blue-100 bg-blue-50 p-6 shadow-lg"
+			class="mt-8 rounded-3xl border border-blue-100 bg-blue-50 p-5 shadow-lg sm:p-6"
 		>
 
 			<h2
