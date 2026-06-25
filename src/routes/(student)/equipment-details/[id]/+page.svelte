@@ -1,6 +1,8 @@
 <script>
 import Header from '$lib/components/Header.svelte';
 import StudentNavbar from '$lib/components/StudentNavbar.svelte';
+import EquipmentInfoCard from '$lib/components/EquipmentInfoCard.svelte';
+import BookingInfoCard from '$lib/components/BookingInfoCard.svelte';
 import Footer from '$lib/components/Footer.svelte';
 
 import BookingConfirmationModal
@@ -144,163 +146,18 @@ function handleBooking() {
 
 				</div>
 
-				<!-- Details -->
+<!-- Details -->
 
-				<div
-					class="rounded-3xl bg-white p-8 shadow-lg"
-				>
-
-					<h2
-						class="mb-6 text-3xl font-bold text-blue-900"
-					>
-						{equipment.name}
-					</h2>
-
-					<div class="space-y-5">
-
-						<p>
-							<span class="font-bold text-blue-800">
-								Department :
-							</span>
-
-							{equipment.department}
-						</p>
-
-						<p>
-							<span class="font-bold text-blue-800">
-								Available Quantity :
-							</span>
-
-							{equipment.quantity}
-						</p>
-
-						<p>
-							<span class="font-bold text-blue-800">
-								Location :
-							</span>
-
-							{equipment.location}
-						</p>
-
-						<p>
-							<span class="font-bold text-blue-800">
-								Status :
-							</span>
-
-							<span
-								class={`ml-2 rounded-full px-4 py-2 font-semibold ${getStatusColor(equipment.status)}`}
-							>
-								{equipment.status}
-							</span>
-						</p>
-
-					</div>
-
-					<div class="mt-8">
-
-						<h3
-							class="mb-3 text-xl font-bold text-blue-900"
-						>
-							Description
-						</h3>
-
-						<p class="leading-relaxed text-slate-600">
-							{equipment.description}
-						</p>
-
-					</div>
-
-				</div>
+<EquipmentInfoCard
+	{equipment}
+	{getStatusColor}
+/>
 
 			</div>
 
-			<!-- Booking Info -->
-
-			<div
-				class="mt-8 rounded-3xl bg-white p-8 shadow-lg"
-			>
-
-				<h2
-					class="mb-6 text-2xl font-bold text-blue-900"
-				>
-					Booking Information
-				</h2>
-
-				<div class="grid gap-6 md:grid-cols-3">
-
-					<div
-						class="rounded-2xl bg-blue-50 p-5 text-center"
-					>
-						<h3
-							class="font-bold text-blue-800"
-						>
-							Maximum Duration
-						</h3>
-
-						<p class="mt-2 text-lg">
-							3 Days
-						</p>
-					</div>
-
-					<div
-						class="rounded-2xl bg-green-50 p-5 text-center"
-					>
-						<h3
-							class="font-bold text-green-700"
-						>
-							Approval
-						</h3>
-
-						<p class="mt-2 text-lg">
-							Lab In-Charge Required
-						</p>
-					</div>
-
-					<div
-						class="rounded-2xl bg-yellow-50 p-5 text-center"
-					>
-						<h3
-							class="font-bold text-yellow-700"
-						>
-							Responsibility
-						</h3>
-
-						<p class="mt-2 text-lg">
-							Student Responsible
-						</p>
-					</div>
-
-				</div>
-
-				<div
-					class="mt-8 rounded-2xl border border-red-200 bg-red-50 p-5"
-				>
-
-					<h3
-						class="mb-2 font-bold text-red-700"
-					>
-						Important Notice
-					</h3>
-
-					<p class="text-slate-700">
-						Students must return the equipment on time.
-						Damage or loss will result in penalties.
-					</p>
-
-				</div>
-
-				<div class="mt-8 text-center">
-
-<button
-	on:click={() => (showConfirmModal = true)}
-	class="rounded-2xl bg-gradient-to-r from-blue-700 to-sky-500 px-10 py-4 text-lg font-bold text-white shadow-lg transition hover:scale-105"
->
-	Book Equipment
-</button>
-
-				</div>
-
-			</div>
+<BookingInfoCard
+	onBook={() => (showConfirmModal = true)}
+/>
 
 		{:else}
 
