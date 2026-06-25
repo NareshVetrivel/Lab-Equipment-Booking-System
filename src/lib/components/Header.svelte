@@ -19,15 +19,15 @@
 		<!-- Logo + Title -->
 
 		<div class="flex items-center gap-4">
-			<div
-				class="rounded-xl bg-white/10 p-1 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/20"
-			>
-				<img
-					src="/logo.jpg"
-					alt="Sona College Logo"
-					class="h-16 w-16 object-contain"
-				/>
-			</div>
+<div
+	class="transition-all duration-300 hover:scale-110"
+>
+	<img
+		src="/logo.png"
+		alt="Sona College Logo"
+		class="h-20 w-20 object-contain drop-shadow-[0_0_18px_rgba(255,215,0,0.5)]"
+	/>
+</div>
 
 			<div>
 				<h2
