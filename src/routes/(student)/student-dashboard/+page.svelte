@@ -81,11 +81,11 @@
 					class="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-4 text-center shadow-sm"
 				>
 					<p class="text-xl font-bold text-slate-800">
-						24 June 2026
+						25 June 2026
 					</p>
 
 					<p class="text-slate-500">
-						Wednesday
+						Thrusday
 					</p>
 				</div>
 
