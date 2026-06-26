@@ -19,44 +19,44 @@
 </script>
 
 <div
-	class="overflow-hidden rounded-3xl bg-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+	class="flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
 >
 	<img
 		src={equipment.image}
 		alt={equipment.name}
-		class="h-48 w-full object-cover"
+		class="h-44 w-full object-cover sm:h-48 md:h-52"
 	/>
 
-	<div class="p-4">
+	<div class="flex flex-1 flex-col p-4 sm:p-5">
 
 		<h3
-			class="text-center text-lg font-bold text-blue-900"
+			class="text-center text-base font-bold text-blue-900 sm:text-lg"
 		>
 			{equipment.name}
 		</h3>
 
 		<p
-			class="mt-1 text-center text-slate-500"
+			class="mt-1 text-center text-sm text-slate-500"
 		>
 			{equipment.department}
 		</p>
 
-		<div class="mt-4 flex justify-center">
+<div class="mt-4 mb-6 flex justify-center">
 
-			<span
-				class={`rounded-full border px-4 py-2 font-semibold ${getQuantityColor(equipment.quantity)}`}
-			>
-				Qty : {equipment.quantity}
-			</span>
+	<span
+		class={`rounded-full border px-3 py-1.5 text-sm font-semibold sm:px-4 sm:py-2 ${getQuantityColor(equipment.quantity)}`}
+	>
+		Qty : {equipment.quantity}
+	</span>
 
-		</div>
+</div>
 
-		<a
-			href={resolve(`/equipment-details/${equipment.id}`)}
-			class="mt-5 block rounded-xl bg-blue-700 py-3 text-center font-semibold text-white transition hover:bg-blue-800"
-		>
-			View Details
-		</a>
+<a
+	href={resolve(`/equipment-details/${equipment.id}`)}
+	class="block rounded-xl bg-blue-700 px-4 py-3 text-center text-sm font-semibold text-white transition duration-200 hover:bg-blue-800 sm:text-base"
+>
+	View Details
+</a>
 
 	</div>
 

@@ -156,20 +156,20 @@ const filteredEquipments = $derived.by(() => {
 
 	<StudentNavbar />
 
-	<main class="mx-auto max-w-7xl px-4 py-8">
+	<main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 
 		<!-- Title -->
 
 		<div class="mb-8 text-center">
 
 			<h1
-				class="text-4xl font-bold text-blue-900"
+				class="text-2xl font-bold text-blue-900 sm:text-3xl lg:text-4xl"
 			>
 				Equipment Module
 			</h1>
 
 			<p
-				class="mt-2 text-slate-600"
+				class="mt-2 text-sm text-slate-600 sm:text-base"
 			>
 				Browse and Book Laboratory Equipment
 			</p>
@@ -179,7 +179,7 @@ const filteredEquipments = $derived.by(() => {
 		<!-- Search & Filter -->
 
 		<div
-			class="mb-8 rounded-3xl bg-white p-6 shadow-lg"
+			class="mb-8 rounded-3xl bg-white p-4 shadow-lg sm:p-6"
 		>
 
 			<div
@@ -190,12 +190,12 @@ const filteredEquipments = $derived.by(() => {
 					bind:value={search}
 					type="text"
 					placeholder="Search Equipment..."
-					class="rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none"
+					class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:outline-none sm:text-base"
 				/>
 
 				<select
 					bind:value={category}
-					class="rounded-xl border border-slate-300 px-4 py-3 focus:border-blue-600 focus:outline-none"
+					class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:outline-none sm:text-base"
 				>
 
 					{#each categories as item (item)}
@@ -215,26 +215,52 @@ const filteredEquipments = $derived.by(() => {
 		<!-- Equipment Count -->
 
 		<div
-			class="mb-6 text-right font-semibold text-slate-600"
+			class="mb-6 text-center font-semibold text-slate-600 sm:text-right"
 		>
 			Total Equipment : {filteredEquipments.length}
 		</div>
 
-		<!-- Equipment Grid -->
+<!-- Equipment Grid -->
 
-		<div
-			class="grid grid-cols-2 gap-6 lg:grid-cols-4"
-		>
+{#if filteredEquipments.length === 0}
 
-			{#each filteredEquipments as equipment (equipment.id)}
-
-				<EquipmentCard
-					{equipment}
-				/>
-
-			{/each}
-
+	<div
+		class="rounded-3xl bg-white px-6 py-16 text-center shadow-lg"
+	>
+		<div class="text-5xl">
+			📦
 		</div>
+
+		<h2
+			class="mt-4 text-xl font-bold text-slate-700"
+		>
+			No Equipment Found
+		</h2>
+
+		<p
+			class="mt-2 text-sm text-slate-500 sm:text-base"
+		>
+			Try searching with a different keyword or choose another category.
+		</p>
+	</div>
+
+{:else}
+
+	<div
+		class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+	>
+
+		{#each filteredEquipments as equipment (equipment.id)}
+
+			<EquipmentCard
+				{equipment}
+			/>
+
+		{/each}
+
+	</div>
+
+{/if}
 
 	</main>
 
