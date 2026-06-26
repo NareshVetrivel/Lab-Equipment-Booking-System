@@ -55,14 +55,14 @@
 			for="email"
 			class="text-sm font-semibold text-slate-700"
 		>
-			Email Address
+			Register Number
 		</label>
 
 		<input
 			id="email"
 			bind:value={email}
 			type="email"
-			placeholder="student@gmail.com"
+			placeholder="Enter your register number"
 			class="block w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-700 outline-none transition-all duration-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
 		/>
 	</div>
