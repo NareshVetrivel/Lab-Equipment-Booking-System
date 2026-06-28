@@ -2,14 +2,92 @@
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import { resolve } from '$app/paths';
+	import { loginStudent } from '$lib/services/authService';
+	import { goto } from '$app/navigation';
 
 	let email = $state('');
 	let password = $state('');
 	let showPassword = $state(false);
 
-	function handleLogin() {
-		console.log('Login');
+	let loading = $state(false);
+	let errorMessage = $state('');
+	let successMessage = $state('');
+	
+async function handleLogin() {
+	errorMessage = '';
+	successMessage = '';
+
+	email = email.trim().toLowerCase();
+	password = password.trim();
+
+	if (!email) {
+		errorMessage = 'College email is required.';
+		return;
 	}
+
+	if (!password) {
+		errorMessage = 'Password is required.';
+		return;
+	}
+
+	const collegeEmailRegex =
+		/^[a-zA-Z0-9._%+-]+@sonatech\.ac\.in$/;
+
+	if (!collegeEmailRegex.test(email)) {
+		errorMessage = 'Use your college email address.';
+		return;
+	}
+
+	loading = true;
+
+	const result = await loginStudent(email, password);
+
+	loading = false;
+
+if (result.success) {
+	successMessage = 'Login successful.';
+
+	email = '';
+	password = '';
+
+	setTimeout(() => {
+
+		if (result.profile?.profileCompleted) {
+			goto(resolve('/(student)/student-dashboard'));
+		} else {
+			goto(resolve('/(student)/student-register'));
+		}
+
+	}, 1000);
+} else {
+		switch (result.message) {
+			case 'Firebase: Error (auth/user-not-found).':
+				errorMessage = 'Account not found.';
+				break;
+
+			case 'Firebase: Error (auth/wrong-password).':
+				errorMessage = 'Incorrect password.';
+				break;
+
+			case 'Firebase: Error (auth/invalid-credential).':
+				errorMessage = 'Invalid email or password.';
+				break;
+
+			case 'Firebase: Error (auth/invalid-email).':
+				errorMessage = 'Invalid email address.';
+				break;
+
+			case 'Firebase: Error (auth/too-many-requests).':
+				errorMessage =
+					'Too many attempts. Please try again later.';
+				break;
+
+			default:
+				errorMessage =
+					result.message ?? 'Something went wrong.';
+		}
+	}
+}
 
 	function togglePassword() {
 		showPassword = !showPassword;
@@ -40,7 +118,17 @@
 		Student Login
 	</h1>
 </div>
+	{#if errorMessage}
+	<div class="mb-4 rounded-xl bg-red-100 p-3 text-center text-sm font-medium text-red-700">
+		{errorMessage}
+	</div>
+{/if}
 
+{#if successMessage}
+	<div class="mb-4 rounded-xl bg-green-100 p-3 text-center text-sm font-medium text-green-700">
+		{successMessage}
+	</div>
+{/if}
 <form
 	class="flex flex-col gap-5"
 	onsubmit={(e) => {
@@ -55,16 +143,18 @@
 			for="email"
 			class="text-sm font-semibold text-slate-700"
 		>
-			Register Number
+			College Email
 		</label>
 
-		<input
-			id="email"
-			bind:value={email}
-			type="email"
-			placeholder="Enter your register number"
-			class="block w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-700 outline-none transition-all duration-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-		/>
+<input
+	id="email"
+	bind:value={email}
+	type="email"
+	autocomplete="email"
+	disabled={loading}
+	placeholder="student@sonatech.ac.in"
+	class="block w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-700 outline-none transition-all duration-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+/>
 	</div>
 
 	<!-- Password -->
@@ -84,15 +174,18 @@
 			type={showPassword ? 'text' : 'password'}
 			placeholder="Enter your password"
 			class="block w-full rounded-xl border border-slate-300 px-4 py-3 pr-14 text-slate-700 outline-none transition-all duration-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+			autocomplete="current-password"
+			disabled={loading}
 		/>
 
-		<button
-			type="button"
-			class="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full hover:bg-slate-100"
-			onclick={togglePassword}
-		>
-			{showPassword ? '🔓' : '🔒'}
-		</button>
+<button
+	type="button"
+	disabled={loading}
+	class="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full hover:bg-slate-100"
+	onclick={togglePassword}
+>
+	{showPassword ? '🔓' : '🔒'}
+</button>
 	</div>
 </div>
 
@@ -109,12 +202,13 @@
 
 	<!-- Login Button -->
 
-	<button
-		type="submit"
-		class="w-full rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-	>
-		Login
-	</button>
+<button
+	type="submit"
+	disabled={loading}
+	class="w-full rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-50"
+>
+	{loading ? 'Logging in...' : 'Login'}
+</button>
 
 	<!-- Signup -->
 

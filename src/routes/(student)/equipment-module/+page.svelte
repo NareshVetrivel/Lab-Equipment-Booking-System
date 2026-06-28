@@ -3,6 +3,8 @@
 	import StudentNavbar from '$lib/components/StudentNavbar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import EquipmentCard from '$lib/components/EquipmentCard.svelte';
+	import { onMount } from 'svelte';
+	import { protectRoute } from '$lib/utils/authGuard';
 
 let search = $state('');
 let category = $state('All');
@@ -148,11 +150,17 @@ const filteredEquipments = $derived.by(() => {
 	});
 
 });
+
+onMount(() => {
+
+	protectRoute();
+
+});
 </script>
 
 <div class="min-h-screen bg-slate-100">
 
-	<Header />
+	<Header showUserMenu={true} />
 
 	<StudentNavbar />
 

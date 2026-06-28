@@ -1,9 +1,55 @@
 <script>
-	let { showLogout = false } = $props();
+	import { onMount } from 'svelte';
+	import { auth } from '$lib/firebase/firebase';
+	import { logout } from '$lib/services/authService';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { onAuthStateChanged } from 'firebase/auth';
 
-	function handleLogout() {
-		console.log('Logout');
+	let {
+	showLogout = false,
+	showUserMenu = false
+} = $props();
+
+	let userEmail = $state('');
+	let showMenu = $state(false);
+/** @type {HTMLDivElement | null} */
+let menuRef = null;
+
+onMount(() => {
+	const unsubscribe = onAuthStateChanged(auth, (user) => {
+		if (user) {
+			userEmail = user.email ?? '';
+		}
+	});
+
+	document.addEventListener('click', handleClickOutside);
+
+	return () => {
+		unsubscribe();
+		document.removeEventListener('click', handleClickOutside);
+	};
+});
+	async function handleLogout() {
+		await logout();
+		goto(resolve('/student-login'));
 	}
+
+	function toggleMenu() {
+		showMenu = !showMenu;
+	}
+
+/**
+ * @param {MouseEvent} event
+ */
+function handleClickOutside(event) {
+	const target = /** @type {Node} */ (event.target);
+
+	if (menuRef && !menuRef.contains(target)) {
+		showMenu = false;
+	}
+}
+
 </script>
 
 <header
@@ -48,28 +94,84 @@
 
 		<!-- Desktop Right Side -->
 
-		<div class="hidden md:block">
+<!-- Desktop Right Side -->
 
-			{#if showLogout}
+<div class="hidden md:block">
 
-				<button
-					type="button"
-					class="rounded-xl bg-red-600 px-5 py-2 font-semibold text-white transition hover:bg-red-700"
-					onclick={handleLogout}
-				>
-					Logout
-				</button>
+	{#if showLogout}
 
-			{:else}
+		<button
+			type="button"
+			class="rounded-xl bg-red-600 px-5 py-2 font-semibold text-white transition hover:bg-red-700"
+			onclick={handleLogout}
+		>
+			Logout
+		</button>
+
+	{:else if showUserMenu}
+
+		<div
+			class="relative"
+			bind:this={menuRef}
+		>
+
+			<button
+				type="button"
+				onclick={(event) => {
+					event.stopPropagation();
+					toggleMenu();
+				}}
+				class="group relative overflow-hidden rounded-full border border-cyan-400/40 bg-cyan-500/20 px-6 py-2 font-medium text-cyan-200 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.45)]"
+			>
+
+				<span
+					class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+				></span>
+
+				<span class="relative">
+					{userEmail}
+				</span>
+
+			</button>
+
+			{#if showMenu}
 
 				<div
-					class="rounded-full border border-green-400/40 bg-green-500/20 px-4 py-2 text-sm font-medium text-green-300 backdrop-blur-sm"
+					class="absolute right-0 mt-3 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
 				>
-					● Academic Portal
+
+					<a
+						href={resolve('/student-profile')}
+						class="block px-5 py-3 text-slate-700 transition hover:bg-sky-100 hover:text-blue-700"
+					>
+						Student Profile
+					</a>
+
+					<hr class="border-slate-200" />
+
+					<button
+						type="button"
+						onclick={handleLogout}
+						class="block w-full px-5 py-3 text-left text-slate-700 transition hover:bg-red-500 hover:text-white"
+					>
+						Logout
+					</button>
+
 				</div>
 
 			{/if}
 
 		</div>
-	</div>
+
+	{:else}
+
+		<div
+			class="rounded-full border border-green-400/40 bg-green-500/20 px-4 py-2 text-sm font-medium text-green-300 backdrop-blur-sm"
+		>
+			● Academic Portal
+		</div>
+
+	{/if}
+
+</div>
 </header>

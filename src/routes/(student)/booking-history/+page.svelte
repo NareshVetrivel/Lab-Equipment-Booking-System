@@ -3,6 +3,8 @@
 	import StudentNavbar from '$lib/components/StudentNavbar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import BookingHistoryCard from '$lib/components/BookingHistoryCard.svelte';
+	import { onMount } from 'svelte';
+	import { protectRoute } from '$lib/utils/authGuard';
 
 	let search = $state('');
 	let status = $state('All');
@@ -66,11 +68,16 @@
 			return searchMatch && statusMatch;
 		});
 	});
+	onMount(() => {
+
+	protectRoute();
+
+});
 </script>
 
 <div class="min-h-screen bg-slate-100">
 
-	<Header />
+	<Header showUserMenu={true} />
 
 	<StudentNavbar />
 

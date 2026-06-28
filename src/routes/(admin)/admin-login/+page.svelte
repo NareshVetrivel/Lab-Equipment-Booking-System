@@ -1,19 +1,102 @@
 <script>
-	import Header from '$lib/components/Header.svelte';
-	import Footer from '$lib/components/Footer.svelte';
-	import { resolve } from '$app/paths';
+import Header from '$lib/components/Header.svelte';
+import Footer from '$lib/components/Footer.svelte';
 
-	let adminId = $state('');
-	let password = $state('');
-	let showPassword = $state(false);
+import { loginAdmin } from '$lib/services/adminAuthService';
 
-	function handleLogin() {
-		console.log('Admin Login');
+import { goto } from '$app/navigation';
+import { resolve } from '$app/paths';
+
+let email = $state('');
+
+let password = $state('');
+
+let showPassword = $state(false);
+
+let loading = $state(false);
+
+let errorMessage = $state('');
+
+async function handleLogin() {
+
+	errorMessage = '';
+
+	email = email.trim().toLowerCase();
+
+	if (!email) {
+
+		errorMessage = 'Admin email is required.';
+		return;
+
 	}
 
-	function togglePassword() {
-		showPassword = !showPassword;
+	const emailRegex =
+		/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+	if (!emailRegex.test(email)) {
+
+		errorMessage = 'Enter a valid email address.';
+		return;
+
 	}
+
+	if (!password) {
+
+		errorMessage = 'Password is required.';
+		return;
+
+	}
+
+	loading = true;
+
+	const result = await loginAdmin(
+		email,
+		password
+	);
+
+	loading = false;
+
+	if (result.success) {
+
+		goto(resolve('/admin-dashboard'));
+
+		return;
+
+	}
+
+	switch (result.message) {
+
+		case 'Firebase: Error (auth/invalid-credential).':
+			errorMessage = 'Invalid email or password.';
+			break;
+
+		case 'Firebase: Error (auth/user-not-found).':
+			errorMessage = 'Admin account not found.';
+			break;
+
+		case 'Firebase: Error (auth/wrong-password).':
+			errorMessage = 'Incorrect password.';
+			break;
+
+		case 'Access denied.':
+			errorMessage = 'You are not an administrator.';
+			break;
+
+		case 'Admin account not found.':
+			errorMessage = 'Admin account not found.';
+			break;
+
+		default:
+			errorMessage =result.message ?? 'Something went wrong.';
+			break;
+
+	}
+
+}
+
+function togglePassword() {
+	showPassword = !showPassword;
+}
 </script>
 
 <div class="flex min-h-screen flex-col bg-gradient-to-br from-slate-100 via-white to-blue-100">
@@ -60,6 +143,16 @@
 
 			</div>
 
+{#if errorMessage}
+
+<div
+	class="mb-6 rounded-xl bg-red-100 p-3 text-center font-medium text-red-700"
+>
+	{errorMessage}
+</div>
+
+{/if}
+
 			<form
 				class="flex flex-col gap-5"
 				onsubmit={(event) => {
@@ -68,7 +161,7 @@
 				}}
 			>
 
-				<!-- Admin ID -->
+				<!-- Admin Email -->
 
 				<div class="flex flex-col gap-2">
 
@@ -76,16 +169,17 @@
 						for="adminId"
 						class="text-sm font-semibold text-slate-700"
 					>
-						Admin ID
+						Admin Email
 					</label>
 
-					<input
-						id="adminId"
-						bind:value={adminId}
-						type="text"
-						placeholder="Enter Admin ID"
-						class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition duration-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-					/>
+<input
+	id="adminId"
+	bind:value={email}
+	type="email"
+	placeholder="Enter Admin Email"
+	disabled={loading}
+	class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition duration-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+/>
 
 				</div>
 
@@ -107,6 +201,7 @@
 							bind:value={password}
 							type={showPassword ? 'text' : 'password'}
 							placeholder="Enter Password"
+							disabled={loading}
 							class="w-full rounded-xl border border-slate-300 px-4 py-3 pr-14 outline-none transition duration-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
 						/>
 
@@ -139,9 +234,10 @@
 
 <button
 	type="submit"
-	class="w-full rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+	disabled={loading}
+	class="w-full rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-50"
 >
-	Admin Login
+	{loading ? 'Signing In...' : 'Admin Login'}
 </button>
 
 			</form>

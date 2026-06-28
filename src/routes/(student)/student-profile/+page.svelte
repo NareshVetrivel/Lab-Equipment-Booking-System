@@ -1,48 +1,115 @@
 <script>
+	import { onMount } from 'svelte';
+
 	import Header from '$lib/components/Header.svelte';
 	import StudentNavbar from '$lib/components/StudentNavbar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import { protectRoute } from '$lib/utils/authGuard';
 
 	import StudentProfileCard from '$lib/components/StudentProfileCard.svelte';
 	import ProfileInformationCard from '$lib/components/ProfileInformationCard.svelte';
 	import AcademicInformationCard from '$lib/components/AcademicInformationCard.svelte';
 	import AccountStatusCard from '$lib/components/AccountStatusCard.svelte';
 
-	const student = {
-		name: 'Naresh S',
-		registerNumber: '23MCA101',
+	import { auth, db } from '$lib/firebase/firebase';
 
-		course: 'Master of Computer Applications',
-		department: 'MCA',
+	import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-		academicYear: '2025 - 2026',
-		semester: 'III',
-		section: 'A',
-		admissionYear: '2024',
+/** @type {any} */
+let student = $state(null);
 
-		year: 'II Year',
+	let editingPhone = $state('');
 
-		dob: '27-04-2005',
-		gender: 'Male',
+	let loading = $state(false);
+	onMount(async () => {
+protectRoute();
+	const user = auth.currentUser;
 
-		email: '23mca101@sonatech.ac.in',
-		phone: '+91 9876543210',
+	if (!user) {
+		return;
+	}
 
-		address: 'Salem, Tamil Nadu',
+	const document = await getDoc(
+		doc(db, 'students', user.uid)
+	);
 
-		status: 'ACTIVE',
+	if (!document.exists()) {
+		return;
+	}
+	
+	const data = document.data();
 
-		photo: '/student-avatar.png'
-	};
+student = {
+
+	name: data.studentName,
+
+	admissionNumber: data.admissionNumber,
+
+	department: data.department,
+
+	course: data.department,
+
+	year: data.year,
+
+	academicYear: data.academicYear,
+
+	dob: data.dob,
+
+	gender: data.gender,
+
+	email: data.email,
+
+	phone: data.phoneNumber,
+
+	photo: data.photoURL,
+
+	status: 'ACTIVE',
+
+	accountCreated:
+		data.createdAt?.toDate().getFullYear().toString() ?? '',
+
+	lastLogin:
+		auth.currentUser?.metadata.lastSignInTime ?? ''
+};
+});
+
+/**
+ * @param {string} phone
+ */
+async function updatePhone(phone) {
+
+	const user = auth.currentUser;
+
+	if (!user) {
+		return;
+	}
+
+	loading = true;
+
+	await updateDoc(
+		doc(db, 'students', user.uid),
+		{
+			phoneNumber: phone
+		}
+	);
+
+	if (student) {
+		student.phone = phone;
+	}
+
+	loading = false;
+}
 </script>
 
 <div class="min-h-screen bg-slate-100">
 
-	<Header />
+	<Header showUserMenu={true} />
 
 	<StudentNavbar />
 
 <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+
+{#if student}
 
 	<!-- Page Header -->
 
@@ -58,53 +125,60 @@
 
 	</div>
 
-	<!-- Desktop / Mobile Layout -->
+<!-- Dashboard Layout -->
 
-	<div
-		class="grid gap-8 xl:grid-cols-12"
-	>
+<div class="grid grid-cols-1 gap-6 xl:grid-cols-12">
 
-		<!-- Student Profile -->
+	<!-- Left Column -->
 
-		<div class="xl:col-span-3">
+	<div class="flex flex-col gap-6 xl:col-span-4">
 
-			<StudentProfileCard
-				{student}
-			/>
+		<StudentProfileCard
+			{student}
+		/>
 
-		</div>
-
-		<!-- Right Content -->
-
-		<div
-			class="space-y-8 xl:col-span-9"
-		>
-
-			<!-- Personal Information -->
-
-			<ProfileInformationCard
-				{student}
-			/>
-
-			<!-- Bottom Cards -->
-
-			<div
-				class="grid gap-8 xl:grid-cols-2"
-			>
-
-				<AcademicInformationCard
-					{student}
-				/>
-
-				<AccountStatusCard
-					{student}
-				/>
-
-			</div>
-
-		</div>
+		<AcademicInformationCard
+			{student}
+		/>
 
 	</div>
+
+	<!-- Right Column -->
+
+	<div class="flex flex-col gap-6 xl:col-span-8">
+
+		<ProfileInformationCard
+			{student}
+			editingPhone={editingPhone}
+			{loading}
+			onSave={updatePhone}
+		/>
+
+		<AccountStatusCard
+			{student}
+		/>
+
+	</div>
+
+</div>
+
+{:else}
+
+<div class="flex items-center justify-center py-24">
+
+	<div class="text-center">
+
+		<div class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-700"></div>
+
+		<h2 class="text-xl font-semibold text-slate-600">
+			Loading Profile...
+		</h2>
+
+	</div>
+
+</div>
+
+{/if}
 
 </main>
 	<Footer />

@@ -1,5 +1,16 @@
 <script>
-	let { student } = $props();
+	let {
+		student,
+		editingPhone = '',
+		loading = false,
+		onSave = () => {}
+	} = $props();
+
+	let isEditingPhone = $state(false);
+	let originalPhone = $state('');
+	let phoneError = $state('');
+
+	const phoneNumberRegex = /^[6-9][0-9]{9}$/;
 </script>
 
 <div
@@ -16,10 +27,11 @@
 			View your personal profile details.
 		</p>
 	</div>
-
 	<!-- Information -->
 
 	<div class="space-y-4">
+
+		<!-- Full Name -->
 
 		<div class="flex items-center justify-between rounded-xl bg-slate-50 p-4">
 			<span class="font-semibold text-slate-600">
@@ -31,15 +43,19 @@
 			</span>
 		</div>
 
-		<div class="flex items-center justify-between rounded-xl bg-slate-50 p-4">
-			<span class="font-semibold text-slate-600">
-				Register Number
-			</span>
+<!-- Admission Number -->
 
-			<span class="font-semibold text-slate-900">
-				{student.registerNumber}
-			</span>
-		</div>
+<div class="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+	<span class="font-semibold text-slate-600">
+		Admission Number
+	</span>
+
+	<span class="font-semibold text-slate-900">
+		{student.admissionNumber}
+	</span>
+</div>
+
+		<!-- DOB -->
 
 		<div class="flex items-center justify-between rounded-xl bg-slate-50 p-4">
 			<span class="font-semibold text-slate-600">
@@ -51,6 +67,8 @@
 			</span>
 		</div>
 
+		<!-- Gender -->
+
 		<div class="flex items-center justify-between rounded-xl bg-slate-50 p-4">
 			<span class="font-semibold text-slate-600">
 				Gender
@@ -60,6 +78,8 @@
 				{student.gender}
 			</span>
 		</div>
+
+		<!-- Email -->
 
 		<div class="flex items-center justify-between rounded-xl bg-slate-50 p-4">
 			<span class="font-semibold text-slate-600">
@@ -71,26 +91,108 @@
 			</span>
 		</div>
 
-		<div class="flex items-center justify-between rounded-xl bg-slate-50 p-4">
-			<span class="font-semibold text-slate-600">
-				Phone Number
-			</span>
+		<!-- Editable Phone Number -->
+
+<!-- Phone Number -->
+
+<div
+	class="flex items-center justify-between rounded-xl bg-slate-50 p-4"
+>
+
+	<span class="font-semibold text-slate-600">
+		Phone Number
+	</span>
+
+	{#if isEditingPhone}
+
+		<input
+			type="tel"
+			bind:value={editingPhone}
+			maxlength="10"
+			oninput={(event) => {
+				const target = /** @type {HTMLInputElement} */ (event.target);
+
+				target.value = target.value.replace(/\D/g, '');
+
+				editingPhone = target.value;
+			}}
+			class="w-48 rounded-lg border border-slate-300 px-3 py-2 text-right outline-none focus:border-blue-500"
+		/>
+{#if phoneError}
+
+	<p class="mt-2 text-right text-sm font-medium text-red-600">
+		{phoneError}
+	</p>
+
+{/if}
+	{:else}
+
+		<div class="flex items-center gap-3">
+
+			<button
+				type="button"
+onclick={() => {
+	editingPhone = student.phone;
+	originalPhone = student.phone;
+	phoneError = '';
+	isEditingPhone = true;
+}}
+				class="rounded-md p-2 transition hover:bg-blue-100"
+				title="Edit Phone Number"
+			>
+				✏️
+			</button>
 
 			<span class="font-semibold text-slate-900">
 				{student.phone}
 			</span>
+
 		</div>
 
-		<div class="flex items-start justify-between rounded-xl bg-slate-50 p-4">
-			<span class="font-semibold text-slate-600">
-				Address
-			</span>
+	{/if}
 
-			<span class="max-w-xs text-right font-semibold text-slate-900 break-words">
-				{student.address}
-			</span>
-		</div>
+</div>
 
-	</div>
+	<!-- Save Button -->
 
+{#if isEditingPhone && editingPhone !== originalPhone}
+
+<div class="mt-6">
+
+	<button
+		type="button"
+		disabled={loading}
+		onclick={async () => {
+
+	editingPhone = editingPhone.trim();
+
+	if (!editingPhone) {
+		phoneError = 'Phone number is required.';
+		return;
+	}
+
+	if (!phoneNumberRegex.test(editingPhone)) {
+		phoneError =
+			'Enter a valid 10-digit phone number.';
+		return;
+	}
+
+	phoneError = '';
+
+	await onSave(editingPhone);
+
+	student.phone = editingPhone;
+	originalPhone = editingPhone;
+	isEditingPhone = false;
+}}
+		class="w-full rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 py-3 font-semibold text-white shadow-lg transition hover:-translate-y-1 disabled:opacity-50"
+	>
+		{loading ? 'Updating...' : 'Save Changes'}
+	</button>
+
+</div>
+
+{/if}
+
+</div>
 </div>

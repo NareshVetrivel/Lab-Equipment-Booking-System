@@ -5,6 +5,8 @@
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 
+	let loading = $state(false);
+
 	let email = $state('');
 	let dateOfBirth = $state('');
 
@@ -14,71 +16,106 @@
 	let showNewPassword = $state(false);
 	let showConfirmPassword = $state(false);
 
-	let verified = $state(false);
-
 	let verificationMessage = $state('');
 	let verificationColor = $state('');
 
-	function verifyStudent() {
+async function resetPassword() {
 
-		/* Dummy Verification
-		   Replace with database verification later */
+	verificationMessage = '';
+	verificationColor = '';
 
-		if (
-			email === 'naresh231@mca.sonatech.ac.in' &&
-			dateOfBirth === '2004-06-15'
-		) {
+email = email.trim().toLowerCase();
 
-			verified = true;
+if (!email) {
+	verificationColor = 'red';
+	verificationMessage = 'College email is required.';
+	return;
+}
+
+const collegeEmailRegex =
+	/^[a-zA-Z0-9._%+-]+@sonatech\.ac\.in$/;
+
+if (!collegeEmailRegex.test(email)) {
+	verificationColor = 'red';
+	verificationMessage = 'Use your college email address.';
+	return;
+}
+
+	if (!dateOfBirth) {
+		verificationColor = 'red';
+		verificationMessage = 'Date of Birth is required.';
+		return;
+	}
+
+	if (!newPassword) {
+		verificationColor = 'red';
+		verificationMessage = 'New password is required.';
+		return;
+	}
+
+	if (!confirmPassword) {
+		verificationColor = 'red';
+		verificationMessage = 'Confirm password is required.';
+		return;
+	}
+
+	if (newPassword !== confirmPassword) {
+		verificationColor = 'red';
+		verificationMessage = 'Passwords do not match.';
+		return;
+	}
+
+	try {
+		loading = true;
+		const response = await fetch(
+			'http://localhost:5000/api/reset-password',
+			{
+				method: 'POST',
+
+				headers: {
+					'Content-Type': 'application/json'
+				},
+
+				body: JSON.stringify({
+					email,
+					dob: dateOfBirth,
+					newPassword
+				})
+			}
+		);
+
+		const result = await response.json();
+			loading = false;
+		if (result.success) {
 
 			verificationColor = 'green';
 
 			verificationMessage =
-				'Student verified successfully. You can now reset your password.';
+				'Password changed successfully.';
 
-		} else {
+			setTimeout(() => {
 
-			verified = false;
+				goto(resolve('/student-login'));
+
+			}, 1500);
+
+		}
+		else {
 
 			verificationColor = 'red';
 
-			verificationMessage =
-				'College Email ID and Date of Birth do not match.';
-
+			verificationMessage = result.message;
 		}
-	}
-
-	function resetPassword() {
-
-		if (!verified) {
-
-			alert('Please verify your details first.');
-
-			return;
-
-		}
-
-		if (!newPassword || !confirmPassword) {
-
-			alert('Please enter both password fields.');
-
-			return;
-
-		}
-
-		if (newPassword !== confirmPassword) {
-
-			alert('Passwords do not match.');
-
-			return;
-
-		}
-
-		alert('Password reset successfully.');
-
-		goto(resolve('/student-login'));
 
 	}
+	catch {
+		loading=false;
+		verificationColor = 'red';
+
+		verificationMessage =
+			'Backend server not running.';
+	}
+}
 
 	function toggleNewPassword() {
 		showNewPassword = !showNewPassword;
@@ -124,7 +161,7 @@
 				</h1>
 
 				<p class="mt-3 text-slate-600">
-					Verify your details before resetting your password.
+					Enter your college email, date of birth and new password.
 				</p>
 
 			</div>
@@ -177,16 +214,6 @@
 
 				</div>
 
-				<!-- Verify Button -->
-
-				<button
-					type="button"
-					class="rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-					onclick={verifyStudent}
-				>
-					Verify
-				</button>
-
 				<!-- Verification Message -->
 
 				{#if verificationMessage}
@@ -230,7 +257,6 @@
 							type={showNewPassword ? 'text' : 'password'}
 							bind:value={newPassword}
 							placeholder="Enter new password"
-							disabled={!verified}
 							class="block w-full rounded-xl border border-slate-300 px-4 py-3 pr-14 outline-none transition-all duration-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60"
 						/>
 
@@ -238,7 +264,6 @@
 							type="button"
 							class="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full hover:bg-slate-100"
 							onclick={toggleNewPassword}
-							disabled={!verified}
 						>
 							{showNewPassword ? '🔓' : '🔒'}
 						</button>
@@ -265,7 +290,6 @@
 							type={showConfirmPassword ? 'text' : 'password'}
 							bind:value={confirmPassword}
 							placeholder="Confirm new password"
-							disabled={!verified}
 							class="block w-full rounded-xl border border-slate-300 px-4 py-3 pr-14 outline-none transition-all duration-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60"
 						/>
 
@@ -273,7 +297,6 @@
 							type="button"
 							class="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full hover:bg-slate-100"
 							onclick={toggleConfirmPassword}
-							disabled={!verified}
 						>
 							{showConfirmPassword ? '🔓' : '🔒'}
 						</button>
@@ -284,14 +307,14 @@
 
 				<!-- Reset Password -->
 
-				<button
-					type="button"
-					disabled={!verified}
-					class="w-full rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-50"
-					onclick={resetPassword}
-				>
-					Reset Password
-				</button>
+<button
+	type="button"
+	disabled={loading}
+	class="w-full rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 py-3 font-semibold text-white shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+	onclick={resetPassword}
+>
+	{loading ? 'Updating Password...' : 'Reset Password'}
+</button>
 
 				<!-- Back to Login -->
 

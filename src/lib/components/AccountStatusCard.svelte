@@ -1,5 +1,19 @@
 <script>
 	let { student } = $props();
+
+	function formatLastLogin() {
+
+		if (!student.lastLogin) {
+			return 'Today';
+		}
+
+		const loginDate = new Date(student.lastLogin);
+
+		return loginDate.toLocaleString('en-IN', {
+			dateStyle: 'medium',
+			timeStyle: 'short'
+		});
+	}
 </script>
 
 <div
@@ -15,22 +29,6 @@
 		<p class="mt-1 text-sm text-slate-500">
 			Current laboratory account information.
 		</p>
-	</div>
-
-	<!-- Status Badge -->
-
-	<div class="mb-6 flex justify-center">
-
-		<span
-			class={`rounded-full px-6 py-3 text-base font-bold ${
-				student.status === 'ACTIVE'
-					? 'bg-green-100 text-green-700'
-					: 'bg-red-100 text-red-700'
-			}`}
-		>
-			● {student.status}
-		</span>
-
 	</div>
 
 	<!-- Status Information -->
@@ -80,9 +78,9 @@
 				Account Created
 			</span>
 
-			<span class="font-semibold text-slate-900">
-				2024
-			</span>
+<span class="font-semibold text-slate-900">
+	{student.accountCreated}
+</span>
 		</div>
 
 		<div
@@ -92,9 +90,9 @@
 				Last Login
 			</span>
 
-			<span class="font-semibold text-slate-900">
-				Today
-			</span>
+<span class="font-semibold text-slate-900">
+	{formatLastLogin()}
+</span>
 		</div>
 
 	</div>
@@ -108,10 +106,9 @@
 			Account Information
 		</h3>
 
-		<p class="text-sm leading-6 text-slate-700">
-			Your laboratory account is active. You can book laboratory equipment,
-			view booking history, and access all student laboratory services.
-		</p>
+<p class="text-sm leading-6 text-slate-700">
+	Your laboratory account is active and verified. You can book laboratory equipment, view your booking history and access all available laboratory services.
+</p>
 	</div>
 
 </div>

@@ -2,6 +2,13 @@
 	import Header from '$lib/components/Header.svelte';
 	import StudentNavbar from '$lib/components/StudentNavbar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import { onMount } from 'svelte';
+	import { auth, db } from '$lib/firebase/firebase';
+	import { doc, getDoc } from 'firebase/firestore';
+	import { onAuthStateChanged } from 'firebase/auth';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { protectRoute } from '$lib/utils/authGuard';
 
 	const today = new Date();
 
@@ -15,15 +22,16 @@
 		weekday: 'long'
 	});
 
-	const student = {
-		name: 'Naresh S',
-		registerNumber: '23MCA101',
-		department: 'MCA',
-		year: 'II Year',
-		dob: '27-04-2005',
-		status: 'ACTIVE',
-		photo: '/student-avatar.png'
-	};
+let student = $state({
+	name: '',
+	admissionNumber: '',
+	department: '',
+	year: '',
+	dob: '',
+	status: 'ACTIVE',
+	photo: '',
+	email: ''
+});
 
 	const rules = [
 		'Student ID card is mandatory while using the laboratory.',
@@ -37,6 +45,37 @@
 		'Keep the laboratory clean and maintain discipline.',
 		'Follow all instructions given by lab in-charge.'
 	];
+
+onMount(() => {
+	protectRoute();
+	const unsubscribe = onAuthStateChanged(auth, async (user) => {
+		console.log(user);
+
+		if (!user) {
+			goto(resolve('/student-login'));
+			return;
+		}
+
+		const snapshot = await getDoc(doc(db, 'students', user.uid));
+
+		if (!snapshot.exists()) return;
+
+		const data = snapshot.data();
+
+student = {
+	name: data.studentName,
+	admissionNumber: data.admissionNumber,
+	department: data.department,
+	year: data.year,
+	dob: data.dob,
+	status: 'ACTIVE',
+	photo: data.photoURL || '/student-avatar.png',
+	email: data.email
+};
+	});
+
+	return unsubscribe;
+});
 
 	const fines = [
 		{
@@ -68,7 +107,7 @@
 </script>
 
 <div class="min-h-screen bg-slate-100">
-	<Header />
+	<Header showUserMenu={true} />
 
 	<StudentNavbar />
 
@@ -144,13 +183,13 @@
 					{student.name}
 				</p>
 
-				<p>
-					<span class="font-bold text-blue-900">
-						Register Number :
-					</span>
+<p>
+	<span class="font-bold text-blue-900">
+		Admission Number :
+	</span>
 
-					{student.registerNumber}
-				</p>
+	{student.admissionNumber}
+</p>
 
 				<p>
 					<span class="font-bold text-blue-900">
@@ -296,7 +335,7 @@
 		<!-- Important Note -->
 
 		<div
-			class="mt-8 rounded-3xl border border-blue-100 bg-blue-50 p-5 shadow-lg sm:p-6"
+			class="rounded-3xl border border-blue-100 bg-blue-50 p-5 shadow-lg sm:p-6"
 		>
 
 			<h2

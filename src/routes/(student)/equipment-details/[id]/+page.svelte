@@ -4,6 +4,8 @@ import StudentNavbar from '$lib/components/StudentNavbar.svelte';
 import EquipmentInfoCard from '$lib/components/EquipmentInfoCard.svelte';
 import BookingInfoCard from '$lib/components/BookingInfoCard.svelte';
 import Footer from '$lib/components/Footer.svelte';
+import { onMount } from 'svelte';
+import { protectRoute } from '$lib/utils/authGuard';
 
 import BookingConfirmationModal
 	from '$lib/components/BookingConfirmationModal.svelte';
@@ -103,10 +105,16 @@ function handleBooking() {
 		showSuccessPopup = false;
 	}, 3000);
 }
+
+onMount(() => {
+
+	protectRoute();
+
+});
 </script>
 
 <div class="min-h-screen bg-slate-100">
-	<Header />
+	<Header showUserMenu={true} />
 
 	<StudentNavbar />
 

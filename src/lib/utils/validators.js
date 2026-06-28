@@ -1,5 +1,5 @@
-export const registerNumberRegex =
-	/^[0-9]{2}[A-Z]{3}[0-9]{3}$/;
+export const admissionNumberRegex =
+	/^[A-Za-z0-9]{6,20}$/;
 
 export const emailRegex =
 	/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
