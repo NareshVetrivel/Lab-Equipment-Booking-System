@@ -177,7 +177,7 @@ student = {
 
 				<p>
 					<span class="font-bold text-blue-900">
-						Student Name :
+						Name :
 					</span>
 
 					{student.name}
