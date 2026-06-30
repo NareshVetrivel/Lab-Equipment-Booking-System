@@ -21,25 +21,35 @@
 			</span>
 		</div>
 
-		<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
-			<span class="font-bold text-blue-800">
-				Available Quantity :
-			</span>
+<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+	<span class="font-bold text-blue-800">
+		Available Quantity :
+	</span>
 
-			<span class="text-slate-700">
-				{equipment.quantity}
-			</span>
-		</div>
+	<span class="text-slate-700">
+		{equipment.available}
+	</span>
+</div>
 
-		<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
-			<span class="font-bold text-blue-800">
-				Location :
-			</span>
+<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+	<span class="font-bold text-blue-800">
+		Total Quantity :
+	</span>
 
-			<span class="text-slate-700">
-				{equipment.location}
-			</span>
-		</div>
+	<span class="text-slate-700">
+		{equipment.total}
+	</span>
+</div>
+
+<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+	<span class="font-bold text-blue-800">
+		Return Within :
+	</span>
+
+	<span class="text-slate-700">
+		{equipment.returnWithinDays} Days
+	</span>
+</div>
 
 		<div class="flex flex-col gap-2 sm:flex-row sm:items-center">
 			<span class="font-bold text-blue-800">

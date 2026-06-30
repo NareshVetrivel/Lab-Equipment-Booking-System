@@ -1,5 +1,5 @@
 <script>
-	import { resolve } from '$app/paths';
+import { resolve } from '$app/paths';
 
 	let {
 		isOpen = false,
@@ -8,32 +8,32 @@
 		onLogout = () => {}
 	} = $props();
 
-	const navigationItems = [
-		{
-			label: '📊 Dashboard',
-			href: '/admin-dashboard'
-		},
-		{
-			label: '🧪 Manage Equipment',
-			href: '/manage-equipment'
-		},
-		{
-			label: '📚 Manage Booking',
-			href: '/manage-booking'
-		},
-		{
-			label: '📝 Booking Requests',
-			href: '/booking-requests'
-		},
-		{
-			label: '↩️ Equipment Return',
-			href: '/equipment-return'
-		},
-		{
-			label: '👤 Profile',
-			href: '/admin-profile'
-		}
-	];
+const navigationItems = [
+	{
+		label: '📊 Dashboard',
+		href: '/admin-dashboard'
+	},
+	{
+		label: '🧪 Manage Equipment',
+		href: '/manage-equipment'
+	},
+	{
+		label: '📚 Manage Booking',
+		href: '/manage-booking'
+	},
+	{
+		label: '📝 Booking Requests',
+		href: '/booking-requests'
+	},
+	{
+		label: '↩️ Equipment Return',
+		href: '/equipment-return'
+	},
+	{
+		label: '👤 Profile',
+		href: '/admin-profile'
+	}
+];
 </script>
 
 {#if isOpen}
@@ -77,13 +77,15 @@
 
 		{#each navigationItems as item (item.href)}
 
-			<a
-				href={resolve(item.href)}
-				class="block rounded-xl px-4 py-3 font-medium text-slate-700 transition-all duration-300 hover:bg-blue-100 hover:text-blue-900"
-				onclick={() => onClose()}
-			>
-				{item.label}
-			</a>
+<a
+	href={resolve(
+		/** @type {any} */ (item.href)
+	)}
+	class="block rounded-xl px-4 py-3 font-medium text-slate-700 transition-all duration-300 hover:bg-blue-100 hover:text-blue-900"
+	onclick={() => onClose()}
+>
+	{item.label}
+</a>
 
 		{/each}
 

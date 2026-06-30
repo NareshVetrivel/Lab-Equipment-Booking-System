@@ -10,57 +10,24 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 
-	let search = '';
-	let selectedDepartment = 'All';
+import { onMount } from 'svelte';
+import { protectAdminRoute } from '$lib/utils/adminGuard';
+import { db } from '$lib/firebase/firebase';
 
-	/** @type {any[]} */
-	let equipments = [
-		{
-			id: 'EQ001',
-			name: 'Arduino Uno',
-			department: 'Computer',
-			available: 18,
-			total: 20,
-			description: 'Arduino development board.',
-			image: ''
-		},
-		{
-			id: 'EQ002',
-			name: 'Oscilloscope',
-			department: 'Physics',
-			available: 5,
-			total: 8,
-			description: 'Digital storage oscilloscope.',
-			image: ''
-		},
-		{
-			id: 'EQ003',
-			name: 'Beaker Set',
-			department: 'Chemistry',
-			available: 40,
-			total: 50,
-			description: 'Laboratory glass beaker set.',
-			image: ''
-		},
-		{
-			id: 'EQ004',
-			name: 'Microscope',
-			department: 'Zoology',
-			available: 6,
-			total: 10,
-			description: 'Biological microscope.',
-			image: ''
-		},
-		{
-			id: 'EQ005',
-			name: 'Plant Slides',
-			department: 'Botany',
-			available: 14,
-			total: 20,
-			description: 'Prepared plant specimen slides.',
-			image: ''
-		}
-	];
+import {
+	collection,
+	getDocs,
+	orderBy,
+	query
+} from 'firebase/firestore';
+
+let search = $state('');
+let selectedDepartment = $state('All');
+
+/** @type {any[]} */
+let equipments = $state([]);
+
+let loading = $state(false);
 
 	function filteredEquipments() {
 		return equipments.filter((equipment) => {
@@ -91,12 +58,57 @@
 		selectedDepartment = department;
 	}
 
+async function loadEquipments() {
+
+	try {
+
+		loading = true;
+
+		const snapshot = await getDocs(
+
+			query(
+				collection(db, 'equipments'),
+				orderBy('createdAt', 'desc')
+			)
+
+		);
+
+		equipments = snapshot.docs.map((doc) => ({
+
+			id: doc.id,
+
+			...doc.data()
+
+		}));
+
+	}
+	catch (error) {
+
+		console.error(error);
+
+		equipments = [];
+
+	}
+	finally {
+
+		loading = false;
+
+	}
+
+}
+
 	/**
 	 * @param {any} equipment
 	 */
 	function openEdit(equipment) {
 		goto(resolve(`/edit-equipment/${equipment.id}`));
 	}
+
+	onMount(() => {
+protectAdminRoute();
+	loadEquipments();
+
+});
 </script>
 
 <div class="min-h-screen bg-slate-100">
@@ -152,6 +164,18 @@
 
 		<!-- Equipment Cards -->
 
+{#if loading}
+
+<div class="rounded-3xl bg-white p-10 text-center shadow-lg">
+
+	<p class="text-lg font-semibold text-slate-600">
+		Loading equipments...
+	</p>
+
+</div>
+
+{:else}
+
 		{#if filteredEquipments().length > 0}
 
 			<div class="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
@@ -188,7 +212,7 @@
 			</div>
 
 		{/if}
-
+{/if}
 	</main>
 
 	<!-- Footer -->

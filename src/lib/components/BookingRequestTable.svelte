@@ -93,7 +93,7 @@
 						<tr class="border-b border-slate-100 hover:bg-slate-50">
 
 							<td class="px-5 py-4 font-semibold text-slate-800">
-								{request.student}
+								{request.studentName}
 							</td>
 
 							<td class="px-5 py-4">
@@ -101,11 +101,11 @@
 							</td>
 
 							<td class="px-5 py-4">
-								{request.equipment}
+								{request.equipmentName}
 							</td>
 
 							<td class="px-5 py-4 text-center">
-								{request.quantity}
+								1
 							</td>
 
 							<td class="px-5 py-4 text-center">

@@ -5,81 +5,178 @@
 
 	import BookingRequestTable from '$lib/components/BookingRequestTable.svelte';
 
-	/** @type {any[]} */
-	let requests = [
+import { onMount } from 'svelte';
+import { protectAdminRoute } from '$lib/utils/adminGuard';
+import { db, auth } from '$lib/firebase/firebase';
+
+import {
+	collection,
+	getDocs,
+	query,
+	where,
+	orderBy,
+	doc,
+	getDoc,
+	updateDoc,
+	serverTimestamp
+} from 'firebase/firestore';
+
+/** @type {any[]} */
+let requests = $state([]);
+
+let loading = $state(false);
+
+	/**
+	 * @param {any} request
+	 */
+async function handleAccept(request) {
+
+	const equipmentRef = doc(
+		db,
+		'equipments',
+		request.equipmentId
+	);
+
+	const equipmentDoc =
+		await getDoc(equipmentRef);
+
+	if (!equipmentDoc.exists()) {
+
+		return;
+
+	}
+
+	const equipment =
+		equipmentDoc.data();
+
+	if (equipment.available <= 0) {
+
+		alert('Equipment out of stock.');
+
+		return;
+
+	}
+
+	await updateDoc(
+
+		doc(db, 'bookings', request.id),
+
 		{
-			id: 'REQ001',
-			student: 'Naresh',
-			department: 'Computer',
-			equipment: 'Arduino Uno',
-			quantity: 2,
-			requestDate: '15-07-2026',
-			requestTime: '10:30 AM',
-			status: 'Pending'
-		},
-		{
-			id: 'REQ002',
-			student: 'Arun',
-			department: 'Physics',
-			equipment: 'Oscilloscope',
-			quantity: 1,
-			requestDate: '15-07-2026',
-			requestTime: '11:15 AM',
-			status: 'Pending'
-		},
-		{
-			id: 'REQ003',
-			student: 'Priya',
-			department: 'Chemistry',
-			equipment: 'Beaker Set',
-			quantity: 5,
-			requestDate: '16-07-2026',
-			requestTime: '09:20 AM',
-			status: 'Pending'
-		},
-		{
-			id: 'REQ004',
-			student: 'Karthik',
-			department: 'Botany',
-			equipment: 'Plant Slides',
-			quantity: 3,
-			requestDate: '16-07-2026',
-			requestTime: '01:45 PM',
-			status: 'Pending'
-		},
-		{
-			id: 'REQ005',
-			student: 'Vijay',
-			department: 'Zoology',
-			equipment: 'Microscope',
-			quantity: 1,
-			requestDate: '17-07-2026',
-			requestTime: '10:10 AM',
-			status: 'Pending'
+
+			status: 'Approved',
+
+			approvedAt:
+				serverTimestamp(),
+
+			approvedBy:
+				auth.currentUser?.uid ?? ''
+
 		}
-	];
+
+	);
+
+	await updateDoc(
+
+		equipmentRef,
+
+		{
+
+			available:
+				equipment.available - 1
+
+		}
+
+	);
+
+	loadRequests();
+
+}
 
 	/**
 	 * @param {any} request
 	 */
-	function handleAccept(request) {
-		requests = requests.map((item) =>
-			item.id === request.id
-				? { ...item, status: 'Approved' }
-				: item
+async function handleReject(request) {
+
+	await updateDoc(
+
+		doc(db, 'bookings', request.id),
+
+		{
+
+			status: 'Rejected',
+
+			updatedAt:
+				serverTimestamp()
+
+		}
+
+	);
+
+	loadRequests();
+
+}
+
+	async function loadRequests() {
+
+	loading = true;
+
+	try {
+
+		const snapshot = await getDocs(
+
+			query(
+
+				collection(db, 'bookings'),
+
+				where('status', '==', 'Pending'),
+
+				orderBy('createdAt', 'desc')
+
+			)
+
 		);
+
+		requests = snapshot.docs.map((document) => {
+
+			const data = document.data();
+
+			const bookedDate =
+				data.createdAt?.toDate();
+
+			return {
+
+				id: document.id,
+
+				...data,
+
+				requestDate:
+					bookedDate?.toLocaleDateString(),
+
+				requestTime:
+					bookedDate?.toLocaleTimeString()
+
+			};
+
+		});
+
+	}
+	catch (error) {
+
+		console.error(error);
+
+		requests = [];
+
 	}
 
-	/**
-	 * @param {any} request
-	 */
-	function handleReject(request) {
-		requests = requests.map((item) =>
-			item.id === request.id
-				? { ...item, status: 'Rejected' }
-				: item
-		);
-	}
+	loading = false;
+
+}
+
+onMount(() => {
+protectAdminRoute();
+	loadRequests();
+
+});
 </script>
 
 <div class="min-h-screen bg-slate-100">
@@ -110,15 +207,25 @@
 
 		</div>
 
-		<!-- Booking Request Table -->
+{#if loading}
 
-		<BookingRequestTable
-			{requests}
-			onAccept={handleAccept}
-			onReject={handleReject}
-		/>
+<div class="rounded-3xl bg-white p-10 text-center shadow-lg">
 
-	</main>
+	<p class="text-lg font-semibold text-slate-600">
+		Loading booking requests...
+	</p>
+
+</div>
+
+{:else}
+
+<BookingRequestTable
+	{requests}
+	onAccept={handleAccept}
+	onReject={handleReject}
+/>
+
+{/if}
 
 	<!-- Footer -->
 

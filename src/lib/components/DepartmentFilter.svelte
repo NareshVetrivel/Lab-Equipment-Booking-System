@@ -10,7 +10,7 @@
 		'Chemistry',
 		'Botany',
 		'Zoology',
-		'Computer'
+		'Computer Science'
 	];
 
 	/**

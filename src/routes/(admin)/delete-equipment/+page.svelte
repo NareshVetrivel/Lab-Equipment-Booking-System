@@ -8,6 +8,19 @@
 	import DeleteEquipmentCard from '$lib/components/DeleteEquipmentCard.svelte';
 	import DeleteConfirmationModal from '$lib/components/DeleteConfirmationModal.svelte';
 
+import { onMount } from 'svelte';
+import { protectAdminRoute } from '$lib/utils/adminGuard';
+import { db } from '$lib/firebase/firebase';
+
+import {
+	collection,
+	getDocs,
+	query,
+	orderBy,
+	doc,
+	deleteDoc
+} from 'firebase/firestore';
+
 	let search = $state('');
 	let selectedDepartment = $state('All');
 
@@ -16,53 +29,14 @@
 	/** @type {any} */
 	let selectedEquipment = $state({});
 
-	let equipments = $state([
-		{
-			id: 'EQ001',
-			name: 'Arduino Uno',
-			department: 'Computer',
-			total: 20,
-			available: 18,
-			description: 'Microcontroller development board.',
-			image: ''
-		},
-		{
-			id: 'EQ002',
-			name: 'Oscilloscope',
-			department: 'Physics',
-			total: 8,
-			available: 5,
-			description: 'Electronic signal measuring instrument.',
-			image: ''
-		},
-		{
-			id: 'EQ003',
-			name: 'Beaker Set',
-			department: 'Chemistry',
-			total: 50,
-			available: 40,
-			description: 'Glass beaker set for chemistry experiments.',
-			image: ''
-		},
-		{
-			id: 'EQ004',
-			name: 'Microscope',
-			department: 'Zoology',
-			total: 10,
-			available: 6,
-			description: 'Biological microscope for laboratory.',
-			image: ''
-		},
-		{
-			id: 'EQ005',
-			name: 'Plant Slides',
-			department: 'Botany',
-			total: 20,
-			available: 14,
-			description: 'Prepared plant specimen slides.',
-			image: ''
-		}
-	]);
+/** @type {any[]} */
+let equipments = $state([]);
+
+let loading = $state(false);
+
+let successMessage = $state('');
+
+let errorMessage = $state('');
 
 	function filteredEquipments() {
 		return equipments.filter((equipment) => {
@@ -94,6 +68,51 @@
 		selectedDepartment = department;
 	}
 
+	async function loadEquipments() {
+
+	try {
+
+		loading = true;
+
+		const snapshot = await getDocs(
+
+			query(
+				collection(db, 'equipments'),
+				orderBy('createdAt', 'desc')
+			)
+
+		);
+
+		equipments = snapshot.docs.map((doc) => ({
+
+			id: doc.id,
+
+			...doc.data()
+
+		}));
+
+	}
+	catch (error) {
+
+		console.error(error);
+
+		errorMessage = 'Failed to load equipments.';
+
+	}
+	finally {
+
+		loading = false;
+
+	}
+
+}
+
+onMount(() => {
+protectAdminRoute();
+	loadEquipments();
+
+});
+
 	/**
 	 * @param {any} equipment
 	 */
@@ -109,14 +128,40 @@
 	/**
 	 * @param {any} equipment
 	 */
-	function deleteEquipment(equipment) {
+async function deleteEquipment(equipment) {
 
-		equipments = equipments.filter(
-			(item) => item.id !== equipment.id
+	try {
+
+		await deleteDoc(
+
+			doc(db, 'equipments', equipment.id)
+
 		);
 
+		equipments = equipments.filter(
+
+			(item) => item.id !== equipment.id
+
+		);
+
+		successMessage =
+			'Equipment deleted successfully.';
+
 		showDeleteModal = false;
+
 	}
+	catch (error) {
+
+		console.error(error);
+
+		errorMessage =
+			'Failed to delete equipment.';
+
+		showDeleteModal = false;
+
+	}
+
+}
 </script>
 
 <div class="min-h-screen bg-slate-100">
@@ -147,6 +192,26 @@
 
 		</div>
 
+{#if errorMessage}
+
+<div
+	class="mb-6 rounded-xl bg-red-100 p-3 text-center font-medium text-red-700"
+>
+	{errorMessage}
+</div>
+
+{/if}
+
+{#if successMessage}
+
+<div
+	class="mb-6 rounded-xl bg-green-100 p-3 text-center font-medium text-green-700"
+>
+	{successMessage}
+</div>
+
+{/if}
+
 		<!-- Search -->
 
 		<div class="mb-6">
@@ -170,6 +235,20 @@
 			/>
 
 		</div>
+
+{#if loading}
+
+<div class="rounded-3xl bg-white p-10 text-center shadow-lg">
+
+	<p class="text-lg font-semibold text-slate-600">
+
+		Loading equipments...
+
+	</p>
+
+</div>
+
+{:else}
 
 		<!-- Equipment Cards -->
 
@@ -207,7 +286,7 @@
 			</div>
 
 		{/if}
-
+{/if}
 	</main>
 
 	<!-- Delete Confirmation Modal -->

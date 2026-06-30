@@ -6,18 +6,25 @@ let {
 	/**
 	 * @param {string} status
 	 */
-	function getStatusClass(status) {
-		switch (status) {
-			case 'Using':
-				return 'bg-yellow-100 text-yellow-700';
+function getStatusClass(status) {
 
-			case 'Returned':
-				return 'bg-green-100 text-green-700';
+	switch (status) {
 
-			default:
-				return 'bg-slate-100 text-slate-700';
-		}
+		case 'Using':
+			return 'bg-yellow-100 text-yellow-700';
+
+		case 'Returned':
+			return 'bg-green-100 text-green-700';
+
+		case 'Overdue':
+			return 'bg-red-100 text-red-700';
+
+		default:
+			return 'bg-slate-100 text-slate-700';
+
 	}
+
+}
 </script>
 
 <div class="overflow-hidden rounded-3xl bg-white shadow-lg">
@@ -27,11 +34,11 @@ let {
 	<div class="border-b border-slate-200 p-6">
 
 		<h2 class="text-2xl font-bold text-blue-900">
-			Booking Details
+			Active Bookings
 		</h2>
 
 		<p class="mt-2 text-slate-600">
-			View all laboratory equipment bookings.
+			View all approved equipment bookings.
 		</p>
 
 	</div>
@@ -44,32 +51,41 @@ let {
 
 			<thead class="sticky top-0 bg-slate-100">
 
-				<tr>
+<tr>
 
-					<th class="w-[16%] px-6 py-4 text-left font-semibold text-slate-700">
-						Student
-					</th>
+	<th class="px-5 py-4 text-left font-semibold text-slate-700">
+		Student Name
+	</th>
 
-					<th class="w-[18%] px-6 py-4 text-left font-semibold text-slate-700">
-						Equipment
-					</th>
+	<th class="px-5 py-4 text-left font-semibold text-slate-700">
+		Student Dept
+	</th>
 
-					<th class="w-[16%] px-6 py-4 text-left font-semibold text-slate-700">
-						Department
-					</th>
+	<th class="px-5 py-4 text-left font-semibold text-slate-700">
+		Equipment Name
+	</th>
 
-					<th class="w-[16%] x-6 py-4 text-center font-semibold text-slate-700">
-						Accept Date
-					</th>
+	<th class="px-5 py-4 text-left font-semibold text-slate-700">
+		Equipment Dept
+	</th>
 
-					<th class="w-[12%] px-6 py-4 text-center font-semibold text-slate-700">
-						Status
-					</th>
+	<th class="px-5 py-4 text-center font-semibold text-slate-700">
+		Student Phone
+	</th>
 
-					<th class="w-[20%] px-6 py-4 text-center font-semibold text-slate-700">
-						Return Date
-					</th>
-				</tr>
+	<th class="px-5 py-4 text-center font-semibold text-slate-700">
+		Accept Date
+	</th>
+
+	<th class="px-5 py-4 text-center font-semibold text-slate-700">
+		Status
+	</th>
+
+	<th class="px-5 py-4 text-center font-semibold text-slate-700">
+		Return Date
+	</th>
+
+</tr>
 
 			</thead>
 
@@ -79,40 +95,47 @@ let {
 
 					{#each bookings as booking (booking.id)}
 
-						<tr class="border-b border-slate-100 hover:bg-slate-50">
+<tr class="border-b border-slate-100 hover:bg-slate-50">
 
-							<td class="px-6 py-4 font-semibold text-slate-800">
-								{booking.student}
-							</td>
+	<td class="px-5 py-4 font-semibold text-slate-800">
+		{booking.student}
+	</td>
 
-							<td class="px-6 py-4">
-								{booking.equipment}
-							</td>
+	<td class="px-5 py-4">
+		{booking.studentDepartment}
+	</td>
 
-							<td class="px-6 py-4">
-								{booking.department}
-							</td>
+	<td class="px-5 py-4">
+		{booking.equipment}
+	</td>
 
-							<td class="px-6 py-4 text-center">
-								{booking.acceptDate}
-							</td>
+	<td class="px-5 py-4">
+		{booking.department}
+	</td>
 
-							<td class="px-6 py-4 text-center">
+	<td class="px-5 py-4 text-center">
+		{booking.studentPhone}
+	</td>
 
-								<span
-									class={`rounded-full px-3 py-1 text-sm font-semibold ${getStatusClass(booking.status)}`}
-								>
-									{booking.status}
-								</span>
+	<td class="px-5 py-4 text-center">
+		{booking.acceptDate ?? '-'}
+	</td>
 
-							</td>
+	<td class="px-5 py-4 text-center">
 
-							<td class="px-6 py-4 text-center">
+		<span
+			class={`rounded-full px-3 py-1 text-sm font-semibold ${getStatusClass(booking.status)}`}
+		>
+			{booking.status}
+		</span>
 
-								{booking.returnDate || '-'}
+	</td>
 
-							</td>
-						</tr>
+	<td class="px-5 py-4 text-center">
+		{booking.returnDate || '-'}
+	</td>
+
+</tr>
 
 					{/each}
 
@@ -121,7 +144,7 @@ let {
 					<tr>
 
 						<td
-							colspan="6"
+							colspan="8"
 							class="px-6 py-16 text-center"
 						>
 
@@ -138,7 +161,7 @@ let {
 								</h3>
 
 								<p class="text-slate-500">
-									No laboratory bookings are available.
+									No approved bookings found.
 								</p>
 
 							</div>

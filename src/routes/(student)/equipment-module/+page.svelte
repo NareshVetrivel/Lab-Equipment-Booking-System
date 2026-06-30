@@ -6,6 +6,15 @@
 	import { onMount } from 'svelte';
 	import { protectRoute } from '$lib/utils/authGuard';
 
+	import { db } from '$lib/firebase/firebase';
+
+import {
+	collection,
+	getDocs,
+	orderBy,
+	query
+} from 'firebase/firestore';
+
 let search = $state('');
 let category = $state('All');
 
@@ -18,129 +27,66 @@ let category = $state('All');
 		'Zoology'
 	];
 
-	const equipments = [
+/** @type {any[]} */
+let equipments = $state([]);
 
-		{
-			id: 1,
-			name: 'Arduino Uno',
-			department: 'Computer Science',
-			quantity: 10,
-			image: 'https://picsum.photos/300/200?1'
-		},
+let loading = $state(false);
 
-		{
-			id: 2,
-			name: 'Raspberry Pi',
-			department: 'Computer Science',
-			quantity: 7,
-			image: 'https://picsum.photos/300/200?2'
-		},
+async function loadEquipments() {
 
-		{
-			id: 3,
-			name: 'Breadboard',
-			department: 'Computer Science',
-			quantity: 2,
-			image: 'https://picsum.photos/300/200?3'
-		},
+	try {
 
-		{
-			id: 4,
-			name: 'NodeMCU',
-			department: 'Computer Science',
-			quantity: 9,
-			image: 'https://picsum.photos/300/200?4'
-		},
+		loading = true;
 
-		{
-			id: 5,
-			name: 'Digital Multimeter',
-			department: 'Physics',
-			quantity: 8,
-			image: 'https://picsum.photos/300/200?5'
-		},
+		const snapshot = await getDocs(
 
-		{
-			id: 6,
-			name: 'Voltmeter',
-			department: 'Physics',
-			quantity: 5,
-			image: 'https://picsum.photos/300/200?6'
-		},
+			query(
 
-		{
-			id: 7,
-			name: 'Ammeter',
-			department: 'Physics',
-			quantity: 2,
-			image: 'https://picsum.photos/300/200?7'
-		},
+				collection(db, 'equipments'),
 
-		{
-			id: 8,
-			name: 'Spectrometer',
-			department: 'Physics',
-			quantity: 9,
-			image: 'https://picsum.photos/300/200?8'
-		},
+				orderBy('createdAt', 'desc')
 
-		{
-			id: 9,
-			name: 'Beaker Set',
-			department: 'Chemistry',
-			quantity: 10,
-			image: 'https://picsum.photos/300/200?9'
-		},
+			)
 
-		{
-			id: 10,
-			name: 'Conical Flask',
-			department: 'Chemistry',
-			quantity: 6,
-			image: 'https://picsum.photos/300/200?10'
-		},
+		);
 
-		{
-			id: 11,
-			name: 'Microscope',
-			department: 'Botany',
-			quantity: 8,
-			image: 'https://picsum.photos/300/200?11'
-		},
+		equipments = snapshot.docs.map((doc) => ({
 
-		{
-			id: 12,
-			name: 'Plant Cell Model',
-			department: 'Botany',
-			quantity: 3,
-			image: 'https://picsum.photos/300/200?12'
-		},
+			id: doc.id,
 
-		{
-			id: 13,
-			name: 'Dissection Tray',
-			department: 'Zoology',
-			quantity: 7,
-			image: 'https://picsum.photos/300/200?13'
-		},
+			...doc.data()
 
-		{
-			id: 14,
-			name: 'DNA Model',
-			department: 'Zoology',
-			quantity: 2,
-			image: 'https://picsum.photos/300/200?14'
-		}
+		}));
 
-	];
+	}
+	catch (error) {
+
+		console.error(error);
+
+		equipments = [];
+
+	}
+	finally {
+
+		loading = false;
+
+	}
+
+}
 
 const filteredEquipments = $derived.by(() => {
 
 	return equipments.filter((equipment) => {
 
-		const searchMatch = equipment.name
-			.toLowerCase()
-			.includes(search.toLowerCase());
+const searchMatch =
+
+	equipment.name
+		.toLowerCase()
+		.includes(search.toLowerCase()) ||
+
+	equipment.id
+		.toLowerCase()
+		.includes(search.toLowerCase());
 
 		const categoryMatch =
 			category === 'All' ||
@@ -154,6 +100,8 @@ const filteredEquipments = $derived.by(() => {
 onMount(() => {
 
 	protectRoute();
+
+	loadEquipments();
 
 });
 </script>
@@ -230,7 +178,21 @@ onMount(() => {
 
 <!-- Equipment Grid -->
 
-{#if filteredEquipments.length === 0}
+{#if loading}
+
+<div
+	class="rounded-3xl bg-white p-10 text-center shadow-lg"
+>
+
+	<p class="text-lg font-semibold text-slate-600">
+
+		Loading Equipments...
+
+	</p>
+
+</div>
+
+{:else if filteredEquipments.length === 0}
 
 	<div
 		class="rounded-3xl bg-white px-6 py-16 text-center shadow-lg"
