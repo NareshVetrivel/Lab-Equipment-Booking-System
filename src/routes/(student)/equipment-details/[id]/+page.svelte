@@ -15,103 +15,144 @@ import SuccessPopup
 
 import { page } from '$app/state';
 
-	const equipments = [
-		{
-			id: 1,
-			name: 'Arduino Uno',
-			department: 'Computer Science',
-			quantity: 10,
-			status: 'Available',
-			location: 'Computer Science Lab',
-			description:
-				'Arduino Uno is used for embedded systems and IoT projects.',
-			image: 'https://picsum.photos/800/500?1'
-		},
-		{
-			id: 2,
-			name: 'Raspberry Pi',
-			department: 'Computer Science',
-			quantity: 7,
-			status: 'Available',
-			location: 'Computer Science Lab',
-			description:
-				'Raspberry Pi is a small computer used for programming and networking experiments.',
-			image: 'https://picsum.photos/800/500?2'
-		},
-		{
-			id: 3,
-			name: 'Breadboard',
-			department: 'Computer Science',
-			quantity: 2,
-			status: 'Limited Stock',
-			location: 'Computer Science Lab',
-			description:
-				'Breadboard is used for circuit prototyping without soldering.',
-			image: 'https://picsum.photos/800/500?3'
-		},
-		{
-			id: 4,
-			name: 'Microscope',
-			department: 'Botany',
-			quantity: 8,
-			status: 'Available',
-			location: 'Botany Lab',
-			description:
-				'Microscope is used to observe microscopic organisms and cells.',
-			image: 'https://picsum.photos/800/500?4'
-		},
-		{
-			id: 5,
-			name: 'Spectrometer',
-			department: 'Physics',
-			quantity: 3,
-			status: 'Limited Stock',
-			location: 'Physics Lab',
-			description:
-				'Spectrometer is used for optical experiments and wavelength measurements.',
-			image: 'https://picsum.photos/800/500?5'
-		}
-	];
+import { db } from '$lib/firebase/firebase';
 
-	const equipmentId = Number(page.params.id);
+import { doc, getDoc } from 'firebase/firestore';
 
-	const equipment = equipments.find(
-		(item) => item.id === equipmentId
-	);
+import { createBooking } from '$lib/services/bookingService';
+
+import { auth } from '$lib/firebase/firebase';
+
+/** @type {any} */
+let equipment = $state(null);
+
+let loading = $state(true);
 
 	/**
 	 * @param {string} status
 	 */
-	function getStatusColor(status) {
-		if (status === 'Available') {
-			return 'bg-green-100 text-green-700';
-		}
+function getStatusColor(status) {
 
-		if (status === 'Limited Stock') {
-			return 'bg-yellow-100 text-yellow-700';
-		}
+	if (status === 'Available') {
+		return 'bg-green-100 text-green-700';
+	}
 
+	if (status === 'Out of Stock') {
 		return 'bg-red-100 text-red-700';
 	}
+
+	return 'bg-yellow-100 text-yellow-700';
+
+}
+
+	async function loadEquipment() {
+
+	try {
+
+		const id = page.params.id ?? '';
+
+		const snapshot = await getDoc(
+			doc(db, 'equipments', id)
+		);
+
+		if (!snapshot.exists()) {
+
+			equipment = null;
+
+			return;
+
+		}
+
+		equipment = {
+
+			id: snapshot.id,
+
+			...snapshot.data()
+
+		};
+
+	}
+	catch (error) {
+
+		console.error(error);
+
+		equipment = null;
+
+	}
+	finally {
+
+		loading = false;
+
+	}
+
+}
 
 let showConfirmModal = $state(false);
 let showSuccessPopup = $state(false);
 
-function handleBooking() {
+async function handleBooking() {
+
 	showConfirmModal = false;
+
+	const user = auth.currentUser;
+
+	if (!user) {
+
+		alert('Please login.');
+
+		return;
+
+	}
+
+const result = await createBooking({
+
+	studentId: user.uid,
+
+	studentName: user.displayName ?? '',
+
+	studentEmail: user.email ?? '',
+
+	equipmentId: equipment.id,
+
+	equipmentName: equipment.name,
+
+	department: equipment.department,
+
+	image: equipment.image,
+
+	returnWithinDays: equipment.returnWithinDays
+
+});
+
+if (!result.success) {
+
+	showConfirmModal = false;
+
+	alert(result.message);
+
+	return;
+
+}
+
 	showSuccessPopup = true;
 
 	setTimeout(() => {
+
 		showSuccessPopup = false;
+
 	}, 3000);
+
 }
 
 onMount(() => {
 
 	protectRoute();
 
+	loadEquipment();
+
 });
 </script>
+
 
 <div class="min-h-screen bg-slate-100">
 	<Header showUserMenu={true} />
@@ -119,8 +160,15 @@ onMount(() => {
 	<StudentNavbar />
 
 	<main class="mx-auto max-w-7xl px-4 py-8">
+{#if loading}
 
-		{#if equipment}
+<div class="rounded-3xl bg-white p-12 text-center shadow-lg">
+
+	Loading Equipment...
+
+</div>
+
+{:else if equipment}
 
 			<!-- Page Title -->
 
@@ -164,6 +212,8 @@ onMount(() => {
 			</div>
 
 <BookingInfoCard
+	{equipment}
+	loading={loading}
 	onBook={() => (showConfirmModal = true)}
 />
 
@@ -197,5 +247,6 @@ onMount(() => {
 <SuccessPopup
 	open={showSuccessPopup}
 />
-	<Footer />
+
+<Footer />
 </div>

@@ -1,7 +1,9 @@
 <script>
-	let {
-		onBook = () => {}
-	} = $props();
+let {
+	equipment,
+	onBook = () => {},
+	loading = false
+} = $props();
 </script>
 
 <div
@@ -25,12 +27,30 @@
 				Maximum Duration
 			</h3>
 
-			<p
-				class="mt-2 text-lg"
-			>
-				3 Days
-			</p>
+<p class="mt-2 text-lg">
+	{equipment.returnWithinDays} Days
+</p>
 		</div>
+
+<div
+	class="rounded-2xl bg-indigo-50 p-5 text-center"
+>
+
+	<h3
+		class="font-bold text-indigo-700"
+	>
+
+		Available
+
+	</h3>
+
+	<p class="mt-2 text-lg">
+
+		{equipment.available}
+
+	</p>
+
+</div>
 
 		<div
 			class="rounded-2xl bg-green-50 p-5 text-center"
@@ -85,12 +105,27 @@
 	<div
 		class="mt-8 text-center"
 	>
-		<button
-			type="button"
-			onclick={() => onBook()}
-			class="w-full rounded-2xl bg-gradient-to-r from-blue-700 to-sky-500 px-6 py-4 text-base font-bold text-white shadow-lg transition hover:scale-105 sm:w-auto sm:px-10 sm:text-lg"
-		>
-			Book Equipment
-		</button>
+<button
+	type="button"
+	disabled={loading || equipment.available <= 0}
+	onclick={() => onBook()}
+	class="w-full rounded-2xl bg-gradient-to-r from-blue-700 to-sky-500 px-6 py-4 text-base font-bold text-white shadow-lg transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-10 sm:text-lg"
+>
+
+	{#if equipment.available <= 0}
+
+		Out of Stock
+
+	{:else if loading}
+
+		Booking...
+
+	{:else}
+
+		Book Equipment
+
+	{/if}
+
+</button>
 	</div>
 </div>

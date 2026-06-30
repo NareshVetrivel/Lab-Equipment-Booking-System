@@ -82,10 +82,21 @@ export async function loginStudent(email, password) {
 			doc(db, 'students', credential.user.uid)
 		);
 
+if (!studentDoc.exists()) {
+
+	await signOut(auth);
+
+	return {
+		success: false,
+		message: 'Access denied. Student account not found.'
+	};
+
+}
+
 return {
 	success: true,
 	user: credential.user,
-	profile: studentDoc.exists() ? studentDoc.data() : null
+	profile: studentDoc.data()
 };
 	} catch (error) {
 		if (error instanceof FirebaseError) {

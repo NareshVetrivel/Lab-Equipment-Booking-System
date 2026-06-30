@@ -1,8 +1,16 @@
 <script>
 	import { resolve } from '$app/paths';
 	import MobileSidebar from '$lib/components/MobileSidebar.svelte';
+	import { logout } from '$lib/services/authService';
+	import { goto } from '$app/navigation';
 
 	let isSidebarOpen = $state(false);
+
+	async function handleLogout() {
+	await logout();
+	goto(resolve('/student-login'));
+
+}
 </script>
 
 <!-- Mobile Navigation -->
@@ -69,4 +77,6 @@
 <MobileSidebar
 	isOpen={isSidebarOpen}
 	onClose={() => (isSidebarOpen = false)}
+	showLogout={true}
+	onLogout={handleLogout}
 />

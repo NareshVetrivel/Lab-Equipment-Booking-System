@@ -7,73 +7,66 @@
 	import DepartmentBookingFilter from '$lib/components/DepartmentBookingFilter.svelte';
 	import ManageBookingTable from '$lib/components/ManageBookingTable.svelte';
 
-	let search = '';
-	let selectedDepartment = 'All';
+let search = $state('');
 
-	/** @type {any[]} */
-	let bookings = [
-		{
-			id: 'BK001',
-			student: 'Naresh',
-			equipment: 'Arduino Uno',
-			department: 'Computer',
-			acceptDate: '27-03-2023',
-			status: 'Using',
-			returnDate: ''
-		},
-		{
-			id: 'BK002',
-			student: 'Arun',
-			equipment: 'Oscilloscope',
-			department: 'Physics',
-			acceptDate: '25-05-2024',
-			status: 'Returned',
-			returnDate: '28-05-2024'
-		},
-		{
-			id: 'BK003',
-			student: 'Karthik',
-			equipment: 'Microscope',
-			department: 'Zoology',
-			acceptDate: '15-06-2025',
-			status: 'Using',
-			returnDate: ''
-		},
-		{
-			id: 'BK004',
-			student: 'Priya',
-			equipment: 'Beaker Set',
-			department: 'Chemistry',
-			acceptDate: '10-02-2025',
-			status: 'Returned',
-			returnDate: '13-02-2025'
-		},
-		{
-			id: 'BK005',
-			student: 'Vijay',
-			equipment: 'Plant Slides',
-			department: 'Botany',
-			acceptDate: '01-07-2025',
-			status: 'Using',
-			returnDate: ''
-		}
-	];
+let selectedDepartment = $state('All');
 
-	function filteredBookings() {
-		return bookings.filter((booking) => {
-			const matchesSearch =
-				booking.student.toLowerCase().includes(search.toLowerCase()) ||
-				booking.equipment.toLowerCase().includes(search.toLowerCase()) ||
-				booking.department.toLowerCase().includes(search.toLowerCase());
+import { onMount } from 'svelte';
+import { protectAdminRoute } from '$lib/utils/adminGuard';
+import { db } from '$lib/firebase/firebase';
 
-			const matchesDepartment =
-				selectedDepartment === 'All'
-					? true
-					: booking.department === selectedDepartment;
+import {
+	collection,
+	getDocs,
+	query,
+	where,
+	orderBy
+} from 'firebase/firestore';
 
-			return matchesSearch && matchesDepartment;
-		});
-	}
+/** @type {any[]} */
+let bookings = $state([]);
+
+let loading = $state(false);
+
+const filteredBookings = $derived.by(() => {
+
+	return bookings.filter((booking) => {
+
+const keyword = search.toLowerCase();
+
+const matchesSearch =
+
+	booking.student
+		.toLowerCase()
+		.includes(keyword) ||
+
+	booking.studentDepartment
+		.toLowerCase()
+		.includes(keyword) ||
+
+	booking.studentPhone
+		.toLowerCase()
+		.includes(keyword) ||
+
+	booking.equipment
+		.toLowerCase()
+		.includes(keyword) ||
+
+	booking.department
+		.toLowerCase()
+		.includes(keyword);
+
+		const matchesDepartment =
+
+			selectedDepartment === 'All' ||
+
+			booking.department === selectedDepartment;
+
+		return matchesSearch && matchesDepartment;
+
+	});
+
+});
 
 	/**
 	 * @param {string} value
@@ -88,6 +81,93 @@
 	function handleDepartment(department) {
 		selectedDepartment = department;
 	}
+
+	async function loadBookings() {
+
+	loading = true;
+
+	try {
+
+		const snapshot = await getDocs(
+
+			query(
+
+				collection(db, 'bookings'),
+
+				where('status', '==', 'Approved'),
+
+				orderBy('approvedAt', 'desc')
+
+			)
+
+		);
+
+		bookings = snapshot.docs.map((document) => {
+
+			const data = document.data();
+
+return {
+
+	id: document.id,
+
+	student: data.studentName ?? '-',
+
+	studentDepartment:
+		data.studentDepartment ?? '-',
+
+	studentPhone:
+		data.studentPhone ?? '-',
+
+	equipment:
+		data.equipmentName ?? '-',
+
+	department:
+		data.department ?? '-',
+
+	acceptDate:
+		data.approvedAt
+			? data.approvedAt
+				.toDate()
+				.toLocaleDateString()
+			: '-',
+
+	status:
+		data.returnedAt
+			? 'Returned'
+			: 'Using',
+
+	returnDate:
+		data.returnedAt
+			? data.returnedAt
+				.toDate()
+				.toLocaleDateString()
+			: '-'
+
+};
+
+		});
+
+	}
+	catch (error) {
+
+		console.error(error);
+
+		bookings = [];
+
+	}
+	finally {
+
+		loading = false;
+
+	}
+
+}
+
+onMount(() => {
+protectAdminRoute();
+	loadBookings();
+
+});
 </script>
 
 <div class="min-h-screen bg-slate-100">
@@ -142,9 +222,21 @@
 
 		<!-- Booking Table -->
 
+{#if loading}
+
+<div class="rounded-3xl bg-white p-10 text-center shadow-lg">
+
+	Loading bookings...
+
+</div>
+
+{:else}
+
 <ManageBookingTable
-	bookings={filteredBookings()}
+	bookings={filteredBookings}
 />
+
+{/if}
 
 	</main>
 

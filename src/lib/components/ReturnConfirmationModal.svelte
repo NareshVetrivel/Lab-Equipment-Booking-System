@@ -109,30 +109,63 @@ const totalFine = $derived(lateFine + damageFine);
 
 				</div>
 
-				<div>
+<div>
 
-					<p class="text-sm text-slate-500">
-						Department
-					</p>
+	<p class="text-sm text-slate-500">
+		Student Department
+	</p>
 
-					<p class="font-semibold">
-						{selectedReturn.department}
-					</p>
+	<p class="font-semibold">
+		{selectedReturn.studentDepartment}
+	</p>
 
-				</div>
+</div>
+<div>
 
-				<div>
+	<p class="text-sm text-slate-500">
+		Equipment Department
+	</p>
 
-					<p class="text-sm text-slate-500">
-						Quantity
-					</p>
+	<p class="font-semibold">
+		{selectedReturn.department}
+	</p>
 
-					<p class="font-semibold">
-						{selectedReturn.quantity}
-					</p>
+</div>
+<div>
 
-				</div>
+	<p class="text-sm text-slate-500">
+		Phone Number
+	</p>
 
+	<p class="font-semibold">
+		{selectedReturn.studentPhone}
+	</p>
+
+</div>
+
+<div>
+
+	<p class="text-sm text-slate-500">
+		Issued Date
+	</p>
+
+	<p class="font-semibold">
+		{selectedReturn.issuedDate}
+	</p>
+
+</div>
+
+<div>
+
+	<p class="text-sm text-slate-500">
+		Due Date
+	</p>
+
+	<p class="font-semibold text-red-600">
+		{selectedReturn.dueDate}
+	</p>
+
+</div>
 			</div>
 
 			<hr>

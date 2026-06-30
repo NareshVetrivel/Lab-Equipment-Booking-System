@@ -5,6 +5,16 @@
 	import BookingHistoryCard from '$lib/components/BookingHistoryCard.svelte';
 	import { onMount } from 'svelte';
 	import { protectRoute } from '$lib/utils/authGuard';
+	import { onAuthStateChanged } from 'firebase/auth';
+	import { auth, db } from '$lib/firebase/firebase';
+
+import {
+	collection,
+	getDocs,
+	query,
+	where,
+	orderBy
+} from 'firebase/firestore';
 
 	let search = $state('');
 	let status = $state('All');
@@ -17,44 +27,85 @@
 		'Rejected'
 	];
 
-	const bookings = [
-		{
-			id: 1,
-			equipmentName: 'Arduino Uno',
-			department: 'Computer Science',
-			bookingDate: '25 June 2026',
-			returnDate: '28 June 2026',
-			status: 'Approved',
-			image: 'https://picsum.photos/400/250?1'
-		},
-		{
-			id: 2,
-			equipmentName: 'Raspberry Pi',
-			department: 'Computer Science',
-			bookingDate: '20 June 2026',
-			returnDate: '23 June 2026',
-			status: 'Pending',
-			image: 'https://picsum.photos/400/250?2'
-		},
-		{
-			id: 3,
-			equipmentName: 'Microscope',
-			department: 'Botany',
-			bookingDate: '18 June 2026',
-			returnDate: '21 June 2026',
-			status: 'Returned',
-			image: 'https://picsum.photos/400/250?3'
-		},
-		{
-			id: 4,
-			equipmentName: 'Spectrometer',
-			department: 'Physics',
-			bookingDate: '15 June 2026',
-			returnDate: '18 June 2026',
-			status: 'Rejected',
-			image: 'https://picsum.photos/400/250?4'
-		}
-	];
+/** @type {any[]} */
+let bookings = $state([]);
+
+let loading = $state(false);
+
+/**
+ * @param {import('firebase/auth').User} user
+ */
+async function loadBookings(user) {
+
+	try {
+
+		loading = true;
+
+		const snapshot = await getDocs(
+
+			query(
+
+				collection(db, 'bookings'),
+
+				where('studentId', '==', user.uid),
+
+				orderBy('createdAt', 'desc')
+
+			)
+
+		);
+
+		bookings = snapshot.docs.map((document) => {
+
+			const data = document.data();
+
+			const bookingDate = data.createdAt?.toDate();
+
+			let returnDate = '';
+
+			if (bookingDate) {
+
+				const returnTimestamp =
+					bookingDate.getTime() +
+					(data.returnWithinDays ?? 0) *
+					24 * 60 * 60 * 1000;
+
+				returnDate = new Intl.DateTimeFormat(
+					'en-IN'
+				).format(returnTimestamp);
+
+			}
+
+			return {
+
+				id: document.id,
+
+				...data,
+
+				bookingDate:
+					bookingDate?.toLocaleDateString(),
+
+				returnDate
+
+			};
+
+		});
+
+	}
+	catch (error) {
+
+		console.error(error);
+
+		bookings = [];
+
+	}
+	finally {
+
+		loading = false;
+
+	}
+
+}
 
 	const filteredBookings = $derived.by(() => {
 		return bookings.filter((booking) => {
@@ -68,9 +119,34 @@
 			return searchMatch && statusMatch;
 		});
 	});
-	onMount(() => {
+
+onMount(() => {
 
 	protectRoute();
+
+	const unsubscribe = onAuthStateChanged(
+
+		auth,
+
+		async (user) => {
+
+			console.log('Logged User UID:', user?.uid);
+
+			if (!user) {
+
+				bookings = [];
+
+				return;
+
+			}
+
+			await loadBookings(user);
+
+		}
+
+	);
+
+	return unsubscribe;
 
 });
 </script>
@@ -143,7 +219,19 @@
 
 		<!-- Cards -->
 
-		{#if filteredBookings.length === 0}
+{#if loading}
+
+<div class="rounded-3xl bg-white p-10 text-center shadow-lg">
+
+	<p class="text-lg font-semibold text-slate-600">
+
+		Loading bookings...
+
+	</p>
+
+</div>
+
+{:else if filteredBookings.length === 0}
 
 			<div
 				class="rounded-3xl bg-white px-6 py-16 text-center shadow-lg"

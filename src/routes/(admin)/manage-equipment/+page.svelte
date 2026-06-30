@@ -9,49 +9,22 @@
 
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { onMount } from 'svelte';
+import { protectAdminRoute } from '$lib/utils/adminGuard';
+import { db } from '$lib/firebase/firebase';
 
-	let search = '';
-	let selectedDepartment = 'All';
+import {
+	collection,
+	getDocs
+} from 'firebase/firestore';
 
-	/** @type {any[]} */
-	let equipments = [
-		{
-			id: 'EQ001',
-			name: 'Arduino Uno',
-			department: 'Computer',
-			available: 18,
-			total: 20
-		},
-		{
-			id: 'EQ002',
-			name: 'Oscilloscope',
-			department: 'Physics',
-			available: 5,
-			total: 8
-		},
-		{
-			id: 'EQ003',
-			name: 'Beaker Set',
-			department: 'Chemistry',
-			available: 40,
-			total: 50
-		},
-		{
-			id: 'EQ004',
-			name: 'Microscope',
-			department: 'Zoology',
-			available: 6,
-			total: 10
-		},
-		{
-			id: 'EQ005',
-			name: 'Plant Slides',
-			department: 'Botany',
-			available: 14,
-			total: 20
-		}
-	];
+let search = $state('');
+let selectedDepartment = $state('All');
 
+/** @type {any[]} */
+let equipments = $state([]);
+
+let loading = $state(false);
 	function filteredEquipments() {
 		return equipments.filter((equipment) => {
 
@@ -81,10 +54,53 @@
 	function handleDepartment(department) {
 		selectedDepartment = department;
 	}
+async function loadEquipments() {
+
+	try {
+
+		loading = true;
+
+const snapshot = await getDocs(
+	collection(db, 'equipments')
+);
+
+console.log(
+	snapshot.docs.map((doc) => ({
+		id: doc.id,
+		...doc.data()
+	}))
+);
+
+		equipments = snapshot.docs.map((doc) => ({
+			id: doc.id,
+			...doc.data()
+		}));
+
+	}
+	catch (error) {
+
+		console.error(error);
+
+		equipments = [];
+
+	}
+	finally {
+
+		loading = false;
+
+	}
+
+}
 
 function openAddPage() {
 	goto(resolve('/add-equipment'));
 }
+
+onMount(() => {
+	protectAdminRoute();
+	loadEquipments();
+
+});
 </script>
 
 <div class="min-h-screen bg-slate-100">
@@ -139,10 +155,25 @@ function openAddPage() {
 		</div>
 
 		<!-- Equipment Table -->
+{#if loading}
 
+<div
+	class="rounded-3xl bg-white p-10 text-center shadow-lg"
+>
+
+	<p class="text-lg font-semibold text-slate-600">
+
+		Loading equipments...
+
+	</p>
+
+</div>
+
+{:else}
 <EquipmentTable
 	equipments={filteredEquipments()}
 />
+{/if}
 <!-- Quick Actions -->
 
 <div class="mt-8 rounded-3xl bg-white p-6 shadow-lg">
@@ -170,22 +201,21 @@ function openAddPage() {
 
 		</button>
 
-		<button
-			type="button"
-			class="rounded-2xl border border-blue-200 bg-blue-50 p-6 transition hover:bg-blue-700 hover:text-white"
-			onclick={() => goto(resolve('/edit-equipment/EQ001'))}
-		>
-			<div class="text-5xl">✏️</div>
+<button
+	type="button"
+	class="rounded-2xl border border-blue-200 bg-blue-50 p-6 transition hover:bg-blue-700 hover:text-white"
+	onclick={() => goto(resolve('/edit-equipment'))}
+>
+	<div class="text-5xl">✏️</div>
 
-			<h3 class="mt-4 text-xl font-bold">
-				Edit Equipment
-			</h3>
+	<h3 class="mt-4 text-xl font-bold">
+		Edit Equipment
+	</h3>
 
-			<p class="mt-2 text-sm">
-				Open edit equipment page.
-			</p>
-
-		</button>
+	<p class="mt-2 text-sm">
+		Open edit equipment page.
+	</p>
+</button>
 
 		<button
 			type="button"

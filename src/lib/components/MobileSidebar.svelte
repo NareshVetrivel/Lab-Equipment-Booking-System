@@ -60,7 +60,9 @@ const navigationItems = /** @type {const} */ ([
 	</div>
 
 <nav class="flex-1 space-y-2 p-4">
+
 	{#each navigationItems as item (item.href)}
+
 		<a
 			href={resolve(item.href)}
 			class="block w-full rounded-xl px-4 py-3 text-left font-medium text-slate-700 transition hover:bg-blue-100 hover:text-blue-900"
@@ -68,24 +70,32 @@ const navigationItems = /** @type {const} */ ([
 		>
 			{item.label}
 		</a>
-	{/each}
-</nav>
 
-	<div class="border-t p-4">
-		{#if showLogout}
-<button
-	type="button"
-	class="w-full rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-4 py-3 font-semibold text-white shadow-md transition duration-300 hover:from-red-700 hover:to-red-800 hover:shadow-lg"
-	onclick={() => onLogout()}
->
-	🚪 Logout
-</button>
-		{:else}
-			<div
-				class="rounded-xl bg-green-100 px-4 py-3 text-center text-sm font-medium text-green-700"
-			>
-				Academic Portal
-			</div>
-		{/if}
+	{/each}
+
+	{#if showLogout}
+
+		<button
+			type="button"
+			onclick={() => {
+				onClose();
+				onLogout();
+			}}
+			class="mt-2 block w-full rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-4 py-3 text-left font-semibold text-white transition hover:from-red-700 hover:to-red-800"
+		>
+			🚪 Logout
+		</button>
+
+	{/if}
+
+</nav>
+<div class="border-t p-4">
+
+	<div
+		class="rounded-xl bg-green-100 px-4 py-3 text-center text-sm font-medium text-green-700"
+	>
+		Academic Portal
 	</div>
+
+</div>
 </aside>

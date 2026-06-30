@@ -28,11 +28,23 @@
 >
 	<!-- Equipment Image -->
 
+{#if booking.image}
+
 	<img
 		src={booking.image}
 		alt={booking.equipmentName}
 		class="h-48 w-full object-cover"
 	/>
+
+{:else}
+
+	<div
+		class="flex h-48 items-center justify-center bg-slate-100 text-7xl"
+	>
+		🧪
+	</div>
+
+{/if}
 
 	<!-- Card Body -->
 
@@ -64,6 +76,18 @@
 				{booking.bookingDate}
 			</p>
 
+<p>
+
+	<span class="font-semibold text-blue-900">
+
+		Return Within :
+
+	</span>
+
+	{booking.returnWithinDays} Days
+
+</p>
+
 			<p>
 				<span class="font-semibold text-blue-900">
 					Return Date :
@@ -85,7 +109,7 @@
 		</div>
 
 		<a
-			href={resolve(`/equipment-details/${booking.id}`)}
+			href={resolve(`/equipment-details/${booking.equipmentId}`)}
 			class="block rounded-xl bg-blue-700 py-3 text-center font-semibold text-white transition hover:bg-blue-800"
 		>
 			View Equipment
