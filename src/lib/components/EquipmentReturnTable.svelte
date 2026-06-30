@@ -34,19 +34,19 @@
 					<th class="px-5 py-4 text-left font-semibold text-slate-700">
 						Student
 					</th>
-
+<th class="px-5 py-4 text-left font-semibold text-slate-700">
+	Student Dept
+</th>
 					<th class="px-5 py-4 text-left font-semibold text-slate-700">
 						Equipment
 					</th>
 
 					<th class="px-5 py-4 text-left font-semibold text-slate-700">
-						Department
+						Equipment Dept
 					</th>
-
-					<th class="px-5 py-4 text-center font-semibold text-slate-700">
-						Quantity
-					</th>
-
+<th class="px-5 py-4 text-center font-semibold text-slate-700">
+	Phone
+</th>
 					<th class="px-5 py-4 text-center font-semibold text-slate-700">
 						Issued Date
 					</th>
@@ -74,7 +74,9 @@
 							<td class="px-5 py-4 font-semibold text-slate-800">
 								{item.student}
 							</td>
-
+<td class="px-5 py-4">
+	{item.studentDepartment}
+</td>
 							<td class="px-5 py-4">
 								{item.equipment}
 							</td>
@@ -82,11 +84,9 @@
 							<td class="px-5 py-4">
 								{item.department}
 							</td>
-
-							<td class="px-5 py-4 text-center">
-								{item.quantity}
-							</td>
-
+<td class="px-5 py-4 text-center">
+	{item.studentPhone}
+</td>
 							<td class="px-5 py-4 text-center">
 								{item.issuedDate}
 							</td>
@@ -120,7 +120,7 @@
 					<tr>
 
 						<td
-							colspan="7"
+							colspan="8"
 							class="px-6 py-16 text-center"
 						>
 

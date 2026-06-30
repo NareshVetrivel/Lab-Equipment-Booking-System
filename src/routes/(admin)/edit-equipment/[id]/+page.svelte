@@ -6,44 +6,237 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 
-	let image = $state(null);
+	import { onMount } from 'svelte';
+import { protectAdminRoute } from '$lib/utils/adminGuard';
+	import { page } from '$app/state';
+
+	import { db } from '$lib/firebase/firebase';
+
+	import {
+		doc,
+		getDoc,
+		updateDoc,
+		serverTimestamp
+	} from 'firebase/firestore';
+
 	let imagePreview = $state('');
 
-	let equipment = $state({
-		id: 'EQ001',
-		name: 'Arduino Uno',
-		department: 'Computer',
-		total: 20,
-		available: 18,
-		description: 'Arduino development board used for embedded system experiments.'
-	});
+let loading = $state(false);
 
-	/**
-	 * @param {Event} event
-	 */
-	function handleImage(event) {
-		const input = /** @type {HTMLInputElement} */ (event.currentTarget);
+let errorMessage = $state('');
 
-		if (input.files && input.files.length > 0) {
-			image = input.files[0];
-			imagePreview = URL.createObjectURL(image);
-		}
+let successMessage = $state('');
+
+
+		const returnDaysRegex =
+	/^[1-9][0-9]?$/;
+
+const departments = [
+
+	'Computer Science',
+
+	'Physics',
+
+	'Chemistry',
+
+	'Botany',
+
+	'Zoology'
+
+];
+
+let equipment = $state({
+
+	name: '',
+
+	department: '',
+
+	total: 0,
+
+	available: 0,
+
+	returnWithinDays: 0,
+
+	description: '',
+
+	image: ''
+
+});
+
+/**
+ * @param {Event} event
+ */
+function handleImage(event) {
+
+	const input =
+		/** @type {HTMLInputElement} */
+		(event.currentTarget);
+
+	const file = input.files?.[0];
+
+	if (!file) {
+		return;
 	}
 
-	function updateEquipment() {
-		console.log({
-			...equipment,
-			image
-		});
+	imagePreview =
+		URL.createObjectURL(file);
 
-		alert('Equipment Updated Successfully');
+}
 
-		goto(resolve('/manage-equipment'));
+async function loadEquipment() {
+
+	const id = page.params.id ?? '';
+
+	const document = await getDoc(
+		doc(db, 'equipments', id)
+	);
+
+if (!document.exists()) {
+
+	errorMessage = 'Equipment not found.';
+
+	setTimeout(() => {
+
+		goto(resolve('/edit-equipment'));
+
+	}, 1200);
+
+	return;
+
+}
+
+	const data = document.data();
+
+equipment = {
+
+	name: data.name,
+
+	department: data.department,
+
+	total: data.total,
+
+	available: data.available,
+
+	returnWithinDays:
+		data.returnWithinDays ?? 0,
+
+	description: data.description,
+
+	image: data.image
+
+};
+
+	imagePreview = data.image;
+
+}
+
+async function updateEquipment() {
+
+	try {
+
+		loading = true;
+
+		errorMessage = '';
+
+		successMessage = '';
+
+		if (!equipment.returnWithinDays) {
+
+	loading = false;
+
+	errorMessage =
+		'Return within days is required.';
+
+	return;
+
+}
+
+if (
+	Number(equipment.available) >
+	Number(equipment.total)
+) {
+
+	loading = false;
+
+	errorMessage =
+		'Available quantity cannot be greater than total quantity.';
+
+	return;
+
+}
+
+if (
+	!returnDaysRegex.test(
+		String(equipment.returnWithinDays)
+	)
+) {
+
+	loading = false;
+
+	errorMessage =
+		'Return days must be between 1 and 99.';
+
+	return;
+
+}
+
+		const id = page.params.id ?? '';
+
+		await updateDoc(
+			doc(db, 'equipments', id),
+			{
+				name: equipment.name.trim(),
+				department: equipment.department,
+				total: Number(equipment.total),
+available: Number(equipment.available),
+
+returnWithinDays: Number(
+	equipment.returnWithinDays
+),
+
+description: equipment.description.trim(),
+				image: imagePreview,
+				status:
+					Number(equipment.available) > 0
+						? 'Available'
+						: 'Out of Stock',
+				updatedAt: serverTimestamp()
+			}
+		);
+
+		loading = false;
+
+		successMessage = 'Equipment updated successfully.';
+
+		setTimeout(() => {
+
+			goto(resolve('/manage-equipment'));
+
+		}, 1200);
+
 	}
+	catch (error) {
+
+		loading = false;
+
+		errorMessage =
+			error instanceof Error
+				? error.message
+				: 'Something went wrong.';
+
+	}
+
+}
 
 	function cancel() {
 		goto(resolve('/manage-equipment'));
 	}
+
+	onMount(() => {
+protectAdminRoute();
+	loadEquipment();
+
+});
 </script>
 
 <div class="min-h-screen bg-slate-100">
@@ -73,6 +266,18 @@
 			</p>
 
 		</div>
+
+{#if errorMessage}
+<div class="mb-6 rounded-xl bg-red-100 p-3 text-center font-medium text-red-700">
+	{errorMessage}
+</div>
+{/if}
+
+{#if successMessage}
+<div class="mb-6 rounded-xl bg-green-100 p-3 text-center font-medium text-green-700">
+	{successMessage}
+</div>
+{/if}
 
 		<!-- Form Card -->
 
@@ -147,11 +352,17 @@
 						bind:value={equipment.department}
 						class="w-full rounded-xl border border-slate-300 p-3"
 					>
-						<option>Computer</option>
-						<option>Physics</option>
-						<option>Chemistry</option>
-						<option>Botany</option>
-						<option>Zoology</option>
+<option value="">
+	Select Department
+</option>
+
+{#each departments as department (department)}
+
+	<option value={department}>
+		{department}
+	</option>
+
+{/each}
 					</select>
 
 				</div>
@@ -188,6 +399,36 @@
 
 				</div>
 
+<div>
+
+	<label class="mb-2 block font-semibold text-slate-700">
+		Return Within (Days)
+	</label>
+
+<input
+	type="number"
+	bind:value={equipment.returnWithinDays}
+	min="1"
+	max="99"
+	oninput={(event) => {
+
+		const target =
+			/** @type {HTMLInputElement} */ (
+				event.currentTarget
+			);
+
+		if (Number(target.value) > 99) {
+			target.value = '99';
+		}
+
+		equipment.returnWithinDays =
+			Number(target.value);
+
+	}}
+	class="w-full rounded-xl border border-slate-300 p-3 outline-none focus:border-blue-600"
+/>
+</div>
+
 				<!-- Description -->
 
 				<div class="md:col-span-2">
@@ -221,9 +462,10 @@
 				<button
 					type="button"
 					class="rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+					disabled={loading}
 					onclick={updateEquipment}
 				>
-					Update Equipment
+					{loading ? 'Updating...' : 'Update Equipment'}
 				</button>
 
 			</div>

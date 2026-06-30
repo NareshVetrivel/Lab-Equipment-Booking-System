@@ -81,7 +81,10 @@ if (result.success) {
 				errorMessage =
 					'Too many attempts. Please try again later.';
 				break;
-
+			case 'Access denied. Student account not found.':
+				errorMessage =
+					'This account is an Administrator account. Please use the Admin Login page.';
+				break;
 			default:
 				errorMessage =
 					result.message ?? 'Something went wrong.';

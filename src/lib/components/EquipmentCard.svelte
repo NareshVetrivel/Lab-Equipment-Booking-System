@@ -3,19 +3,21 @@
 
 	let { equipment } = $props();
 /**
- * @param {number} quantity
+ * @param {number} available
  */
-	function getQuantityColor(quantity) {
-		if (quantity >= 8) {
-			return 'bg-green-100 text-green-700 border-green-200';
-		}
+function getQuantityColor(available) {
 
-		if (quantity >= 4) {
-			return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-		}
-
-		return 'bg-red-100 text-red-700 border-red-200';
+	if (available >= 8) {
+		return 'bg-green-100 text-green-700 border-green-200';
 	}
+
+	if (available >= 4) {
+		return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+	}
+
+	return 'bg-red-100 text-red-700 border-red-200';
+
+}
 </script>
 
 <div
@@ -43,10 +45,50 @@
 
 <div class="mt-4 mb-6 flex justify-center">
 
+<span
+	class={`rounded-full border px-3 py-1.5 text-sm font-semibold sm:px-4 sm:py-2 ${getQuantityColor(equipment.available)}`}
+>
+	Available : {equipment.available}
+</span>
+
+</div>
+
+<div class="mb-5 space-y-2 text-center">
+
+	<p class="text-sm text-slate-600">
+
+		Total :
+		<span class="font-semibold">
+			{equipment.total}
+		</span>
+
+	</p>
+
+	<p class="text-sm text-slate-600">
+
+		Return Within :
+		<span class="font-semibold text-blue-700">
+
+			{equipment.returnWithinDays} Days
+
+		</span>
+
+	</p>
+
+</div>
+
+<div class="mb-4 flex justify-center">
+
 	<span
-		class={`rounded-full border px-3 py-1.5 text-sm font-semibold sm:px-4 sm:py-2 ${getQuantityColor(equipment.quantity)}`}
+		class={`rounded-full px-4 py-2 text-sm font-semibold ${
+			equipment.status === 'Available'
+				? 'bg-green-100 text-green-700'
+				: 'bg-red-100 text-red-700'
+		}`}
 	>
-		Qty : {equipment.quantity}
+
+		{equipment.status}
+
 	</span>
 
 </div>

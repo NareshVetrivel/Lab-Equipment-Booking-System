@@ -7,6 +7,9 @@
 	import EquipmentStatusCard from '$lib/components/EquipmentStatusCard.svelte';
 	import LowStockCard from '$lib/components/LowStockCard.svelte';
 
+import { onMount } from 'svelte';
+import { protectAdminRoute } from '$lib/utils/adminGuard';
+
 	const today = new Date();
 
 	const currentDate = today.toLocaleDateString('en-IN', {
@@ -45,6 +48,10 @@
 			color: 'orange'
 		}
 	];
+
+	onMount(() => {
+	protectAdminRoute();
+});
 </script>
 
 <div class="min-h-screen bg-slate-100">
