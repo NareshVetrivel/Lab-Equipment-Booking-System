@@ -13,9 +13,7 @@
 
 <div class="space-y-2">
 	{#if label}
-		<label
-			class="block text-sm font-semibold text-slate-700"
-		>
+		<label class="block text-sm font-semibold text-slate-700">
 			{label}
 			{#if required}
 				<span class="text-red-500">*</span>
@@ -24,9 +22,9 @@
 	{/if}
 
 	<input
-		type={type}
-		value={value}
-		placeholder={placeholder}
+		{type}
+		{value}
+		{placeholder}
 		class="
 			w-full
 			rounded-xl

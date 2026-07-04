@@ -5,12 +5,7 @@
 		icon: string;
 		color?: string;
 	}} */
-	const {
-		title,
-		value,
-		icon,
-		color = 'blue'
-	} = $props();
+	const { title, value, icon, color = 'blue' } = $props();
 
 	/**
 	 * @param {string} color
@@ -53,11 +48,8 @@
 <div
 	class="rounded-3xl bg-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 >
-
 	<div class="flex items-center justify-between">
-
 		<div>
-
 			<p class="text-sm font-semibold uppercase tracking-wide text-slate-500">
 				{title}
 			</p>
@@ -65,15 +57,10 @@
 			<h2 class={`mt-3 text-4xl font-bold ${theme.text}`}>
 				{value}
 			</h2>
-
 		</div>
 
-		<div
-			class={`flex h-16 w-16 items-center justify-center rounded-2xl text-3xl ${theme.bg}`}
-		>
+		<div class={`flex h-16 w-16 items-center justify-center rounded-2xl text-3xl ${theme.bg}`}>
 			{icon}
 		</div>
-
 	</div>
-
 </div>

@@ -29,9 +29,7 @@
 			class="mx-auto grid min-h-[calc(100vh-180px)] max-w-7xl items-center gap-10 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:px-8"
 		>
 			<!-- Left Hero Section -->
-			<div
-				class="rounded-3xl border border-white/40 bg-white/60 p-8 shadow-xl backdrop-blur-md"
-			>
+			<div class="rounded-3xl border border-white/40 bg-white/60 p-8 shadow-xl backdrop-blur-md">
 				<div class="space-y-6">
 					<div
 						class="inline-flex items-center rounded-full border border-sky-200 bg-sky-100 px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm"
@@ -39,30 +37,25 @@
 						🔬 College Laboratory Management System
 					</div>
 
-					<h1
-						class="text-4xl font-extrabold leading-tight text-blue-950 sm:text-5xl lg:text-6xl"
-					>
+					<h1 class="text-4xl font-extrabold leading-tight text-blue-950 sm:text-5xl lg:text-6xl">
 						Lab Equipment
 						<span class="text-sky-600">Booking System</span>
 					</h1>
 
-					<p
-						class="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg"
-					>
-						A professional academic platform for managing laboratory
-						equipment bookings, approvals, returns, inventory tracking,
-						damage reports, and student requests efficiently.
+					<p class="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
+						A professional academic platform for managing laboratory equipment bookings, approvals,
+						returns, inventory tracking, damage reports, and student requests efficiently.
 					</p>
 
 					<div class="flex flex-wrap gap-4">
-						<a 
+						<a
 							href={resolve('/(student)/student-login')}
 							class="rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-2xl"
 						>
 							🎓 Student Portal
 						</a>
 
-						<a 
+						<a
 							href={resolve('/(admin)/admin-login')}
 							class="rounded-xl bg-gradient-to-r from-slate-700 to-slate-900 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-2xl"
 						>
@@ -77,13 +70,9 @@
 				<div
 					class="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:border-blue-300 hover:shadow-2xl"
 				>
-					<p class="text-sm font-semibold text-slate-500">
-						Student Workflow
-					</p>
+					<p class="text-sm font-semibold text-slate-500">Student Workflow</p>
 
-					<h3 class="mt-3 text-2xl font-bold text-blue-950">
-						📚 Book & Track
-					</h3>
+					<h3 class="mt-3 text-2xl font-bold text-blue-950">📚 Book & Track</h3>
 
 					<p class="mt-2 text-sm text-slate-600">
 						Request equipment, monitor approvals, and track booking history.
@@ -93,13 +82,9 @@
 				<div
 					class="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:border-blue-300 hover:shadow-2xl"
 				>
-					<p class="text-sm font-semibold text-slate-500">
-						Admin Workflow
-					</p>
+					<p class="text-sm font-semibold text-slate-500">Admin Workflow</p>
 
-					<h3 class="mt-3 text-2xl font-bold text-blue-950">
-						🛠️ Manage & Approve
-					</h3>
+					<h3 class="mt-3 text-2xl font-bold text-blue-950">🛠️ Manage & Approve</h3>
 
 					<p class="mt-2 text-sm text-slate-600">
 						Manage equipment inventory, approvals, fines, and reports.
@@ -111,9 +96,7 @@
 				>
 					<p class="text-4xl font-bold text-green-600">50+</p>
 
-					<p class="mt-2 text-slate-600">
-						Laboratory Equipment Available
-					</p>
+					<p class="mt-2 text-slate-600">Laboratory Equipment Available</p>
 				</div>
 
 				<div
@@ -121,9 +104,7 @@
 				>
 					<p class="text-4xl font-bold text-orange-500">5</p>
 
-					<p class="mt-2 text-slate-600">
-						Laboratory Categories Supported
-					</p>
+					<p class="mt-2 text-slate-600">Laboratory Categories Supported</p>
 				</div>
 
 				<div
@@ -131,9 +112,7 @@
 				>
 					<p class="text-4xl font-bold text-purple-600">100+</p>
 
-					<p class="mt-2 text-slate-600">
-						Bookings Processed
-					</p>
+					<p class="mt-2 text-slate-600">Bookings Processed</p>
 				</div>
 
 				<div
@@ -141,9 +120,7 @@
 				>
 					<p class="text-4xl font-bold text-cyan-600">24/7</p>
 
-					<p class="mt-2 text-slate-600">
-						System Accessibility
-					</p>
+					<p class="mt-2 text-slate-600">System Accessibility</p>
 				</div>
 			</div>
 		</section>

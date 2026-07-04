@@ -1,53 +1,46 @@
 <script>
 	import { resolve } from '$app/paths';
 
-	let {
-		isOpen = false,
-		onClose = () => {},
-		showLogout = false,
-		onLogout = () => {}
-	} = $props();
+	let { isOpen = false, onClose = () => {}, showLogout = false, onLogout = () => {} } = $props();
 
-const navigationItems = /** @type {const} */ ([
-	{
-		label: '📊 Dashboard',
-		href: '/student-dashboard'
-	},
-	{
-		label: '🧪 Equipment',
-		href: '/equipment-module'
-	},
-	{
-		label: '📖 Booking History',
-		href: '/booking-history'
-	},
-	{
-		label: '👤 Student Profile',
-		href: '/student-profile'
-	}
-]);
+	const navigationItems = /** @type {const} */ ([
+		{
+			label: '📊 Dashboard',
+			href: '/student-dashboard'
+		},
+		{
+			label: '🧪 Equipment',
+			href: '/equipment-module'
+		},
+		{
+			label: '📖 Booking History',
+			href: '/booking-history'
+		},
+		{
+			label: '👤 Student Profile',
+			href: '/student-profile'
+		}
+	]);
 </script>
 
 {#if isOpen}
 	<button
 		type="button"
-		class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+		class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
 		onclick={() => onClose()}
 		aria-label="Close sidebar"
 	></button>
 {/if}
 
 <aside
-	class={`fixed left-0 top-0 z-50 flex h-screen w-72 flex-col bg-white shadow-2xl transition-transform duration-300 md:hidden ${
+	class={`fixed left-0 top-0 z-50 flex h-screen w-72 flex-col bg-white shadow-2xl transition-transform duration-300 lg:hidden ${
 		isOpen ? 'translate-x-0' : '-translate-x-full'
 	}`}
 >
 	<div
 		class="flex items-center justify-between bg-gradient-to-r from-blue-950 via-blue-900 to-blue-800 px-5 py-4"
 	>
-		<h2 class="text-lg font-bold text-white">
-			Menu
-		</h2>
+		<h2 class="text-lg font-bold text-white">Menu</h2>
 
 		<button
 			type="button"
@@ -59,43 +52,35 @@ const navigationItems = /** @type {const} */ ([
 		</button>
 	</div>
 
-<nav class="flex-1 space-y-2 p-4">
+	<nav class="flex-1 overflow-y-auto p-4">
+		<div class="space-y-2">
+			{#each navigationItems as item (item.href)}
+				<a
+					href={resolve(item.href)}
+					class="block w-full rounded-xl px-4 py-3 text-left font-medium text-slate-700 transition hover:bg-blue-100 hover:text-blue-900"
+					onclick={() => onClose()}
+				>
+					{item.label}
+				</a>
+			{/each}
 
-	{#each navigationItems as item (item.href)}
-
-		<a
-			href={resolve(item.href)}
-			class="block w-full rounded-xl px-4 py-3 text-left font-medium text-slate-700 transition hover:bg-blue-100 hover:text-blue-900"
-			onclick={() => onClose()}
-		>
-			{item.label}
-		</a>
-
-	{/each}
-
-	{#if showLogout}
-
-		<button
-			type="button"
-			onclick={() => {
-				onClose();
-				onLogout();
-			}}
-			class="mt-2 block w-full rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-4 py-3 text-left font-semibold text-white transition hover:from-red-700 hover:to-red-800"
-		>
-			🚪 Logout
-		</button>
-
-	{/if}
-
-</nav>
-<div class="border-t p-4">
-
-	<div
-		class="rounded-xl bg-green-100 px-4 py-3 text-center text-sm font-medium text-green-700"
-	>
-		Academic Portal
+			{#if showLogout}
+				<button
+					type="button"
+					onclick={() => {
+						onClose();
+						onLogout();
+					}}
+					class="mt-2 block w-full rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-4 py-3 text-left font-semibold text-white transition hover:from-red-700 hover:to-red-800"
+				>
+					🚪 Logout
+				</button>
+			{/if}
+		</div>
+	</nav>
+	<div class="border-t p-4">
+		<div class="rounded-xl bg-green-100 px-4 py-3 text-center text-sm font-medium text-green-700">
+			Academic Portal
+		</div>
 	</div>
-
-</div>
 </aside>

@@ -7,66 +7,38 @@
 	import DepartmentBookingFilter from '$lib/components/DepartmentBookingFilter.svelte';
 	import ManageBookingTable from '$lib/components/ManageBookingTable.svelte';
 
-let search = $state('');
+	let search = $state('');
 
-let selectedDepartment = $state('All');
+	let selectedDepartment = $state('All');
 
-import { onMount } from 'svelte';
-import { protectAdminRoute } from '$lib/utils/adminGuard';
-import { db } from '$lib/firebase/firebase';
+	import { onMount } from 'svelte';
+	import { protectAdminRoute } from '$lib/utils/adminGuard';
+	import { db } from '$lib/firebase/firebase';
 
-import {
-	collection,
-	getDocs,
-	query,
-	where,
-	orderBy
-} from 'firebase/firestore';
+	import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 
-/** @type {any[]} */
-let bookings = $state([]);
+	/** @type {any[]} */
+	let bookings = $state([]);
 
-let loading = $state(false);
+	let loading = $state(false);
 
-const filteredBookings = $derived.by(() => {
+	const filteredBookings = $derived.by(() => {
+		return bookings.filter((booking) => {
+			const keyword = search.toLowerCase();
 
-	return bookings.filter((booking) => {
+			const matchesSearch =
+				booking.student.toLowerCase().includes(keyword) ||
+				booking.studentDepartment.toLowerCase().includes(keyword) ||
+				booking.studentPhone.toLowerCase().includes(keyword) ||
+				booking.equipment.toLowerCase().includes(keyword) ||
+				booking.department.toLowerCase().includes(keyword);
 
-const keyword = search.toLowerCase();
+			const matchesDepartment =
+				selectedDepartment === 'All' || booking.department === selectedDepartment;
 
-const matchesSearch =
-
-	booking.student
-		.toLowerCase()
-		.includes(keyword) ||
-
-	booking.studentDepartment
-		.toLowerCase()
-		.includes(keyword) ||
-
-	booking.studentPhone
-		.toLowerCase()
-		.includes(keyword) ||
-
-	booking.equipment
-		.toLowerCase()
-		.includes(keyword) ||
-
-	booking.department
-		.toLowerCase()
-		.includes(keyword);
-
-		const matchesDepartment =
-
-			selectedDepartment === 'All' ||
-
-			booking.department === selectedDepartment;
-
-		return matchesSearch && matchesDepartment;
-
+			return matchesSearch && matchesDepartment;
+		});
 	});
-
-});
 
 	/**
 	 * @param {string} value
@@ -83,98 +55,61 @@ const matchesSearch =
 	}
 
 	async function loadBookings() {
+		loading = true;
 
-	loading = true;
+		try {
+			const snapshot = await getDocs(
+				query(
+					collection(db, 'bookings'),
 
-	try {
+					where('status', '==', 'Approved'),
 
-		const snapshot = await getDocs(
+					orderBy('approvedAt', 'desc')
+				)
+			);
 
-			query(
+			bookings = snapshot.docs.map((document) => {
+				const data = document.data();
 
-				collection(db, 'bookings'),
+				return {
+					id: document.id,
 
-				where('status', '==', 'Approved'),
+					student: data.studentName ?? '-',
 
-				orderBy('approvedAt', 'desc')
+					studentDepartment: data.studentDepartment ?? '-',
 
-			)
+					studentPhone: data.studentPhone ?? '-',
 
-		);
+					equipment: data.equipmentName ?? '-',
 
-		bookings = snapshot.docs.map((document) => {
+					department: data.department ?? '-',
 
-			const data = document.data();
+					acceptDate: data.approvedAt ? data.approvedAt.toDate().toLocaleDateString() : '-',
 
-return {
+					status: data.returnedAt ? 'Returned' : 'Using',
 
-	id: document.id,
+					returnDate: data.returnedAt ? data.returnedAt.toDate().toLocaleDateString() : '-'
+				};
+			});
+		} catch (error) {
+			console.error(error);
 
-	student: data.studentName ?? '-',
-
-	studentDepartment:
-		data.studentDepartment ?? '-',
-
-	studentPhone:
-		data.studentPhone ?? '-',
-
-	equipment:
-		data.equipmentName ?? '-',
-
-	department:
-		data.department ?? '-',
-
-	acceptDate:
-		data.approvedAt
-			? data.approvedAt
-				.toDate()
-				.toLocaleDateString()
-			: '-',
-
-	status:
-		data.returnedAt
-			? 'Returned'
-			: 'Using',
-
-	returnDate:
-		data.returnedAt
-			? data.returnedAt
-				.toDate()
-				.toLocaleDateString()
-			: '-'
-
-};
-
-		});
-
-	}
-	catch (error) {
-
-		console.error(error);
-
-		bookings = [];
-
-	}
-	finally {
-
-		loading = false;
-
+			bookings = [];
+		} finally {
+			loading = false;
+		}
 	}
 
-}
-
-onMount(() => {
-protectAdminRoute();
-	loadBookings();
-
-});
+	onMount(() => {
+		protectAdminRoute();
+		loadBookings();
+	});
 </script>
 
 <div class="min-h-screen bg-slate-100">
-
 	<!-- Header -->
 
-	<Header />
+	<Header userType="admin" />
 
 	<!-- Admin Navbar -->
 
@@ -183,65 +118,38 @@ protectAdminRoute();
 	<!-- Main Content -->
 
 	<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-
 		<!-- Page Header -->
 
 		<div class="mb-8">
-
-			<h1 class="text-3xl font-bold text-blue-900">
-				Manage Booking
-			</h1>
+			<h1 class="text-3xl font-bold text-blue-900">Manage Booking</h1>
 
 			<p class="mt-2 text-slate-600">
 				View all laboratory equipment bookings and their current status.
 			</p>
-
 		</div>
 
 		<!-- Search Toolbar -->
 
 		<div class="mb-6">
-
-			<BookingToolbar
-				search={search}
-				onSearch={handleSearch}
-			/>
-
+			<BookingToolbar {search} onSearch={handleSearch} />
 		</div>
 
 		<!-- Department Filter -->
 
 		<div class="mb-6">
-
-			<DepartmentBookingFilter
-				selectedDepartment={selectedDepartment}
-				onSelect={handleDepartment}
-			/>
-
+			<DepartmentBookingFilter {selectedDepartment} onSelect={handleDepartment} />
 		</div>
 
 		<!-- Booking Table -->
 
-{#if loading}
-
-<div class="rounded-3xl bg-white p-10 text-center shadow-lg">
-
-	Loading bookings...
-
-</div>
-
-{:else}
-
-<ManageBookingTable
-	bookings={filteredBookings}
-/>
-
-{/if}
-
+		{#if loading}
+			<div class="rounded-3xl bg-white p-10 text-center shadow-lg">Loading bookings...</div>
+		{:else}
+			<ManageBookingTable bookings={filteredBookings} />
+		{/if}
 	</main>
 
 	<!-- Footer -->
 
 	<Footer />
-
 </div>

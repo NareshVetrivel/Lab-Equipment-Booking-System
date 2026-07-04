@@ -7,31 +7,37 @@
 	import ReturnConfirmationModal from '$lib/components/ReturnConfirmationModal.svelte';
 	import FineRulesCard from '$lib/components/FineRulesCard.svelte';
 
-import { onMount } from 'svelte';
-import { protectAdminRoute } from '$lib/utils/adminGuard';
-import { db, auth } from '$lib/firebase/firebase';
+	import { onMount } from 'svelte';
+	import { protectAdminRoute } from '$lib/utils/adminGuard';
+	import { db, auth } from '$lib/firebase/firebase';
 
-import {
-	collection,
-	getDocs,
-	query,
-	where,
-	orderBy,
-	doc,
-	updateDoc,
-	getDoc,
-	serverTimestamp
-} from 'firebase/firestore';
+	import {
+		collection,
+		getDocs,
+		query,
+		where,
+		orderBy,
+		doc,
+		updateDoc,
+		getDoc,
+		serverTimestamp
+	} from 'firebase/firestore';
+
+	import SuccessPopup from '$lib/components/SuccessPopup.svelte';
 
 	let showModal = $state(false);
 
 	/** @type {any} */
 	let selectedReturn = $state({});
 
-/** @type {any[]} */
-let returns = $state([]);
+	/** @type {any[]} */
+	let returns = $state([]);
 
-let loading = $state(false);
+	let loading = $state(false);
+
+	let showSuccessDialog = $state(false);
+
+	let totalFine = $state('-');
 
 	/**
 	 * @param {any} item
@@ -45,199 +51,138 @@ let loading = $state(false);
 		showModal = false;
 	}
 
-async function loadReturns() {
+	async function loadReturns() {
+		loading = true;
 
-	loading = true;
+		try {
+			const snapshot = await getDocs(
+				query(
+					collection(db, 'bookings'),
 
-	try {
+					where('status', '==', 'Approved'),
 
-		const snapshot = await getDocs(
+					orderBy('approvedAt', 'desc')
+				)
+			);
 
-			query(
+			returns = snapshot.docs.map((document) => {
+				const data = document.data();
 
-				collection(db, 'bookings'),
+				const issuedDate = data.approvedAt?.toDate();
 
-				where('status', '==', 'Approved'),
+				let dueDate = '';
 
-				orderBy('approvedAt', 'desc')
+				if (issuedDate) {
+					const dueTimestamp =
+						issuedDate.getTime() + (data.returnWithinDays ?? 0) * 24 * 60 * 60 * 1000;
 
-			)
+					dueDate = new Intl.DateTimeFormat('en-IN').format(dueTimestamp);
+				}
 
-		);
+				return {
+					id: document.id,
 
-		returns = snapshot.docs.map((document) => {
+					...data,
 
-			const data = document.data();
+					student: data.studentName,
 
-			const issuedDate =
-				data.approvedAt?.toDate();
+					studentDepartment: data.studentDepartment,
 
-			let dueDate = '';
+					studentPhone: data.studentPhone,
 
-			if (issuedDate) {
+					equipment: data.equipmentName,
 
-const dueTimestamp =
-	issuedDate.getTime() +
-	(data.returnWithinDays ?? 0) *
-	24 *
-	60 *
-	60 *
-	1000;
+					issuedDate: issuedDate?.toLocaleDateString(),
 
-dueDate = new Intl.DateTimeFormat(
-	'en-IN'
-).format(dueTimestamp);
+					dueDate
+				};
+			});
+		} catch (error) {
+			console.error(error);
 
-			}
+			returns = [];
+		}
 
-			return {
-
-				id: document.id,
-
-				...data,
-
-				student: data.studentName,
-
-				studentDepartment:
-					data.studentDepartment,
-
-				studentPhone:
-					data.studentPhone,
-
-				equipment:
-					data.equipmentName,
-
-				issuedDate:
-					issuedDate?.toLocaleDateString(),
-
-				dueDate
-
-			};
-
-		});
-
+		loading = false;
 	}
-	catch (error) {
-
-		console.error(error);
-
-		returns = [];
-
-	}
-
-	loading = false;
-
-}
 
 	/**
 	 * @param {any} returnedItem
 	 */
-async function confirmReturn(returnedItem) {
-
-	try {
-
-		await updateDoc(
-
-			doc(db, 'bookings', returnedItem.id),
-
-			{
-
-				status: 'Returned',
-
-				returnedAt:
-					serverTimestamp(),
-
-				returnedBy:
-					auth.currentUser?.uid ?? '',
-
-				lateDays:
-					returnedItem.lateDays,
-
-				lateFine:
-					returnedItem.lateFine,
-
-				damageType:
-					returnedItem.damageType,
-
-				damageFine:
-					returnedItem.damageFine,
-
-				totalFine:
-					returnedItem.totalFine
-
-			}
-
-		);
-
-		const equipmentRef = doc(
-
-			db,
-
-			'equipments',
-
-			returnedItem.equipmentId
-
-		);
-
-		const equipmentDoc =
-			await getDoc(equipmentRef);
-
-		if (equipmentDoc.exists()) {
-
-			const equipment =
-				equipmentDoc.data();
-
+	async function confirmReturn(returnedItem) {
+		try {
 			await updateDoc(
-
-				equipmentRef,
+				doc(db, 'bookings', returnedItem.id),
 
 				{
+					status: 'Returned',
 
-					available:
+					returnedAt: serverTimestamp(),
 
-						Number(
-							equipment.available
-						) + 1
+					returnedBy: auth.currentUser?.uid ?? '',
 
+					lateDays: returnedItem.lateDays,
+
+					lateFine: returnedItem.lateFine,
+
+					damageType: returnedItem.damageType,
+
+					damageFine: returnedItem.damageFine,
+
+					totalFine: returnedItem.totalFine
 				}
-
 			);
 
+			const equipmentRef = doc(
+				db,
+
+				'equipments',
+
+				returnedItem.equipmentId
+			);
+
+			const equipmentDoc = await getDoc(equipmentRef);
+
+			if (equipmentDoc.exists()) {
+				const equipment = equipmentDoc.data();
+
+				await updateDoc(
+					equipmentRef,
+
+					{
+						available: Number(equipment.available) + 1
+					}
+				);
+			}
+
+			showModal = false;
+
+			totalFine = returnedItem.totalFine ?? '-';
+
+			await loadReturns();
+
+			showSuccessDialog = true;
+
+			setTimeout(() => {
+				showSuccessDialog = false;
+			}, 2500);
+		} catch (error) {
+			console.error(error);
+
+			showSuccessDialog = true;
 		}
-
-		alert(
-
-			`Equipment Returned Successfully\n\nTotal Fine : ₹${returnedItem.totalFine}`
-
-		);
-
-		showModal = false;
-
-		await loadReturns();
-
-	}
-	catch (error) {
-
-		console.error(error);
-
-		alert('Unable to return equipment.');
-
 	}
 
-}
-
-onMount(() => {
-protectAdminRoute();
-	loadReturns();
-
-});
+	onMount(() => {
+		protectAdminRoute();
+		loadReturns();
+	});
 </script>
 
 <div class="min-h-screen bg-slate-100">
-
 	<!-- Header -->
 
-	<Header />
+	<Header userType="admin" />
 
 	<!-- Admin Navbar -->
 
@@ -246,57 +191,50 @@ protectAdminRoute();
 	<!-- Main Content -->
 
 	<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-
 		<!-- Page Title -->
 
 		<div class="mb-8">
-
-			<h1 class="text-3xl font-bold text-blue-900">
-				Equipment Return
-			</h1>
+			<h1 class="text-3xl font-bold text-blue-900">Equipment Return</h1>
 
 			<p class="mt-2 text-slate-600">
 				Process returned laboratory equipment and calculate fines automatically.
 			</p>
-
 		</div>
 
 		<!-- Equipment Return Table -->
 
-{#if loading}
-
-<div class="rounded-3xl bg-white p-10 text-center shadow-lg">
-
-	Loading equipment returns...
-
-</div>
-
-{:else}
-
-<EquipmentReturnTable
-	returns={returns}
-	onReturn={openReturnModal}
-/>
-
-{/if}
+		{#if loading}
+			<div class="rounded-3xl bg-white p-10 text-center shadow-lg">
+				Loading equipment returns...
+			</div>
+		{:else}
+			<EquipmentReturnTable {returns} onReturn={openReturnModal} />
+		{/if}
 
 		<!-- Fine Rules -->
 
 		<FineRulesCard />
-
 	</main>
 
 	<!-- Return Confirmation Modal -->
 
 	<ReturnConfirmationModal
 		isOpen={showModal}
-		selectedReturn={selectedReturn}
+		{selectedReturn}
 		onClose={closeModal}
 		onConfirm={confirmReturn}
+	/>
+
+	<SuccessPopup
+		open={showSuccessDialog}
+		title="Equipment Returned"
+		message={`Equipment returned successfully.
+
+Total Fine
+₹${totalFine}`}
 	/>
 
 	<!-- Footer -->
 
 	<Footer />
-
 </div>

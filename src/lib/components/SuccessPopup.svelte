@@ -1,35 +1,40 @@
 <script>
-	let { open = false } = $props();
+	let { open = false, title = 'Success', message = 'Operation completed successfully.' } = $props();
 </script>
 
 {#if open}
-
 	<div
-		class="fixed inset-0 z-[60] flex items-center justify-center px-4"
+		class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
 	>
+		<div class="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-2xl">
+			<!-- Success Icon -->
 
-		<div
-			class="w-full max-w-xs rounded-3xl bg-green-600 px-6 py-5 text-center text-white shadow-2xl sm:max-w-sm sm:px-8 sm:py-6"
-		>
-
-			<div class="mb-3 text-5xl">
-				✅
+			<div
+				class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-600 shadow-lg"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="3"
+					class="h-10 w-10 text-white"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+				</svg>
 			</div>
 
-			<h2
-				class="text-xl font-bold sm:text-2xl"
-			>
-				Booking Confirmed
+			<!-- Title -->
+
+			<h2 class="mt-6 text-2xl font-bold text-slate-800">
+				{title}
 			</h2>
 
-			<p
-				class="mt-2 text-sm sm:text-base"
-			>
-				Your booking has been submitted successfully.
+			<!-- Message -->
+
+			<p class="mt-3 whitespace-pre-line text-lg leading-8 text-slate-600">
+				{message}
 			</p>
-
 		</div>
-
 	</div>
-
 {/if}

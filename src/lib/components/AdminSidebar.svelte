@@ -1,39 +1,30 @@
 <script>
-import { resolve } from '$app/paths';
+	import { resolve } from '$app/paths';
 
-	let {
-		isOpen = false,
-		onClose = () => {},
-		showLogout = true,
-		onLogout = () => {}
-	} = $props();
+	let { isOpen = false, onClose = () => {}, showLogout = true, onLogout = () => {} } = $props();
 
-const navigationItems = [
-	{
-		label: '📊 Dashboard',
-		href: '/admin-dashboard'
-	},
-	{
-		label: '🧪 Manage Equipment',
-		href: '/manage-equipment'
-	},
-	{
-		label: '📚 Manage Booking',
-		href: '/manage-booking'
-	},
-	{
-		label: '📝 Booking Requests',
-		href: '/booking-requests'
-	},
-	{
-		label: '↩️ Equipment Return',
-		href: '/equipment-return'
-	},
-	{
-		label: '👤 Profile',
-		href: '/admin-profile'
-	}
-];
+	const navigationItems = [
+		{
+			label: '📊 Dashboard',
+			href: '/admin-dashboard'
+		},
+		{
+			label: '🧪 Manage Equipment',
+			href: '/manage-equipment'
+		},
+		{
+			label: '📚 Manage Booking',
+			href: '/manage-booking'
+		},
+		{
+			label: '📝 Booking Requests',
+			href: '/booking-requests'
+		},
+		{
+			label: '↩️ Equipment Return',
+			href: '/equipment-return'
+		}
+	];
 </script>
 
 {#if isOpen}
@@ -55,10 +46,7 @@ const navigationItems = [
 	<div
 		class="flex items-center justify-between bg-gradient-to-r from-blue-950 via-blue-900 to-blue-800 px-5 py-4"
 	>
-
-		<h2 class="text-xl font-bold text-white">
-			Admin Menu
-		</h2>
+		<h2 class="text-xl font-bold text-white">Admin Menu</h2>
 
 		<button
 			type="button"
@@ -68,53 +56,40 @@ const navigationItems = [
 		>
 			✕
 		</button>
-
 	</div>
 
 	<!-- Navigation -->
 
-	<nav class="flex-1 space-y-2 overflow-y-auto p-4">
+	<nav class="flex-1 overflow-y-auto p-4">
+		<div class="space-y-2">
+			{#each navigationItems as item (item.href)}
+				<a
+					href={resolve(/** @type {any} */ (item.href))}
+					class="block rounded-xl px-4 py-3 font-medium text-slate-700 transition-all duration-300 hover:bg-blue-100 hover:text-blue-900"
+					onclick={() => onClose()}
+				>
+					{item.label}
+				</a>
+			{/each}
 
-		{#each navigationItems as item (item.href)}
-
-<a
-	href={resolve(
-		/** @type {any} */ (item.href)
-	)}
-	class="block rounded-xl px-4 py-3 font-medium text-slate-700 transition-all duration-300 hover:bg-blue-100 hover:text-blue-900"
-	onclick={() => onClose()}
->
-	{item.label}
-</a>
-
-		{/each}
-
+			{#if showLogout}
+				<button
+					type="button"
+					class="mt-2 w-full rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-4 py-3 font-semibold text-white transition hover:from-red-700 hover:to-red-800"
+					onclick={() => {
+						onClose();
+						onLogout();
+					}}
+				>
+					🚪 Logout
+				</button>
+			{/if}
+		</div>
 	</nav>
 
-	<!-- Logout -->
-
 	<div class="border-t p-4">
-
-		{#if showLogout}
-
-			<button
-				type="button"
-				class="w-full rounded-xl bg-red-600 px-4 py-3 font-semibold text-white transition-all duration-300 hover:bg-red-700 hover:shadow-lg"
-				onclick={() => onLogout()}
-			>
-				🚪 Logout
-			</button>
-
-		{:else}
-
-			<div
-				class="rounded-xl bg-green-100 px-4 py-3 text-center text-sm font-medium text-green-700"
-			>
-				Administrator Panel
-			</div>
-
-		{/if}
-
+		<div class="rounded-xl bg-green-100 px-4 py-3 text-center text-sm font-medium text-green-700">
+			Administrator Panel
+		</div>
 	</div>
-
 </aside>

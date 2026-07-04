@@ -1,17 +1,7 @@
 <script>
-	let {
-		selectedDepartment = 'All',
-		onSelect = () => {}
-	} = $props();
+	let { selectedDepartment = 'All', onSelect = () => {} } = $props();
 
-	const departments = [
-		'All',
-		'Physics',
-		'Chemistry',
-		'Botany',
-		'Zoology',
-		'Computer Science'
-	];
+	const departments = ['All', 'Physics', 'Chemistry', 'Botany', 'Zoology', 'Computer Science'];
 
 	/**
 	 * @param {string} department
@@ -22,15 +12,10 @@
 </script>
 
 <div class="rounded-3xl bg-white p-5 shadow-lg">
-
-	<h2 class="mb-4 text-lg font-bold text-blue-900">
-		Departments
-	</h2>
+	<h2 class="mb-4 text-lg font-bold text-blue-900">Departments</h2>
 
 	<div class="flex flex-wrap gap-3">
-
 		{#each departments as department (department)}
-
 			<button
 				type="button"
 				class={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 ${
@@ -42,9 +27,6 @@
 			>
 				{department}
 			</button>
-
 		{/each}
-
 	</div>
-
 </div>
