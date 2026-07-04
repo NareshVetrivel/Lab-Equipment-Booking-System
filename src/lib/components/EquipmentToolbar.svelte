@@ -24,7 +24,6 @@
 	<!-- Search Box -->
 
 	<div class="relative flex-1">
-
 		<svg
 			class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
 			fill="none"
@@ -42,17 +41,15 @@
 		<input
 			type="text"
 			value={search}
-			placeholder={placeholder}
+			{placeholder}
 			class="w-full rounded-2xl border border-slate-300 bg-slate-50 py-3 pl-12 pr-4 text-slate-700 outline-none transition-all duration-300 focus:border-blue-700 focus:bg-white focus:ring-2 focus:ring-blue-200"
 			oninput={handleInput}
 		/>
-
 	</div>
 
 	<!-- Add Equipment Button -->
 
 	{#if showButton}
-
 		<button
 			type="button"
 			class="rounded-2xl bg-blue-700 px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-blue-800 hover:shadow-lg"
@@ -60,7 +57,5 @@
 		>
 			+ {buttonText}
 		</button>
-
 	{/if}
-
 </div>

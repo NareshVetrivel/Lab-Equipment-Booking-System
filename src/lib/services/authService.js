@@ -28,41 +28,37 @@ import {
  */
 export async function registerStudent(email, password) {
 	try {
-		const credential = await createUserWithEmailAndPassword(
-			auth,
-			email,
-			password
-		);
+		const credential = await createUserWithEmailAndPassword(auth, email, password);
 
 		const user = credential.user;
 
-await setDoc(doc(db, 'students', user.uid), {
-	uid: user.uid,
-	email: user.email,
-	role: 'student',
+		await setDoc(doc(db, 'students', user.uid), {
+			uid: user.uid,
+			email: user.email,
+			role: 'student',
 
-	profileCompleted: false,
+			profileCompleted: false,
 
-	createdAt: serverTimestamp()
-});
+			createdAt: serverTimestamp()
+		});
 
 		return {
 			success: true,
 			user
 		};
 	} catch (error) {
-	if (error instanceof FirebaseError) {
+		if (error instanceof FirebaseError) {
+			return {
+				success: false,
+				message: error.message
+			};
+		}
+
 		return {
 			success: false,
-			message: error.message
+			message: 'Something went wrong.'
 		};
 	}
-
-	return {
-		success: false,
-		message: 'Something went wrong.'
-	};
-}
 }
 
 /**
@@ -72,32 +68,24 @@ await setDoc(doc(db, 'students', user.uid), {
  */
 export async function loginStudent(email, password) {
 	try {
-		const credential = await signInWithEmailAndPassword(
-			auth,
-			email,
-			password
-		);
+		const credential = await signInWithEmailAndPassword(auth, email, password);
 
-		const studentDoc = await getDoc(
-			doc(db, 'students', credential.user.uid)
-		);
+		const studentDoc = await getDoc(doc(db, 'students', credential.user.uid));
 
-if (!studentDoc.exists()) {
+		if (!studentDoc.exists()) {
+			await signOut(auth);
 
-	await signOut(auth);
+			return {
+				success: false,
+				message: 'Access denied. Student account not found.'
+			};
+		}
 
-	return {
-		success: false,
-		message: 'Access denied. Student account not found.'
-	};
-
-}
-
-return {
-	success: true,
-	user: credential.user,
-	profile: studentDoc.data()
-};
+		return {
+			success: true,
+			user: credential.user,
+			profile: studentDoc.data()
+		};
 	} catch (error) {
 		if (error instanceof FirebaseError) {
 			return {
@@ -125,18 +113,18 @@ export async function forgotPassword(email) {
 			success: true
 		};
 	} catch (error) {
-	if (error instanceof FirebaseError) {
+		if (error instanceof FirebaseError) {
+			return {
+				success: false,
+				message: error.message
+			};
+		}
+
 		return {
 			success: false,
-			message: error.message
+			message: 'Something went wrong.'
 		};
 	}
-
-	return {
-		success: false,
-		message: 'Something went wrong.'
-	};
-}
 }
 
 /**
@@ -171,9 +159,7 @@ export async function verifyStudent(email, dob) {
 		return {
 			success: true
 		};
-
 	} catch (error) {
-
 		if (error instanceof FirebaseError) {
 			return {
 				success: false,
@@ -205,45 +191,63 @@ export async function verifyStudent(email, dob) {
  */
 export async function updateStudentProfile(uid, profile) {
 	try {
-const studentQuery = query(
-	collection(db, 'students'),
-	where('admissionNumber', '==', profile.admissionNumber)
-);
-const studentSnapshot = await getDocs(studentQuery);
+		const studentQuery = query(
+			collection(db, 'students'),
+			where('admissionNumber', '==', profile.admissionNumber)
+		);
+		const studentSnapshot = await getDocs(studentQuery);
 
-if (!studentSnapshot.empty) {
-	const existingStudent = studentSnapshot.docs[0];
+		if (!studentSnapshot.empty) {
+			const existingStudent = studentSnapshot.docs[0];
 
-	if (existingStudent.id !== uid) {
-		return {
-			success: false,
-			message: 'Admission number already exists.'
-		};
-	}
-}
-await updateDoc(doc(db, 'students', uid), {
-	studentName: profile.studentName,
+			if (existingStudent.id !== uid) {
+				return {
+					success: false,
+					message: 'Admission number already exists.'
+				};
+			}
+		}
+		const phoneQuery = query(
+			collection(db, 'students'),
+			where('phoneNumber', '==', profile.phoneNumber)
+		);
 
-	admissionNumber: profile.admissionNumber,
+		const phoneSnapshot = await getDocs(phoneQuery);
 
-	department: profile.department,
+		if (!phoneSnapshot.empty) {
+			const existingStudent = phoneSnapshot.docs[0];
 
-	year: profile.year,
+			if (existingStudent.id !== uid) {
+				return {
+					success: false,
+					message: 'Phone number already exists.'
+				};
+			}
+		}
 
-	academicYear: profile.academicYear,
+		await updateDoc(doc(db, 'students', uid), {
+			studentName: profile.studentName,
 
-	dob: profile.dob,
+			admissionNumber: profile.admissionNumber,
 
-	gender: profile.gender,
+			department: profile.department,
 
-	phoneNumber: profile.phoneNumber,
+			year: profile.year,
 
-	photoURL: profile.photoURL,
+			academicYear: profile.academicYear,
 
-	profileCompleted: true,
+			dob: profile.dob,
 
-	updatedAt: serverTimestamp()
-});
+			gender: profile.gender,
+
+			phoneNumber: profile.phoneNumber,
+
+			photoURL: profile.photoURL,
+
+			profileCompleted: true,
+
+			updatedAt: serverTimestamp()
+		});
 
 		return {
 			success: true
@@ -269,7 +273,6 @@ await updateDoc(doc(db, 'students', uid), {
  */
 export async function resetStudentPassword(password) {
 	try {
-
 		if (!auth.currentUser) {
 			return {
 				success: false,
@@ -282,9 +285,7 @@ export async function resetStudentPassword(password) {
 		return {
 			success: true
 		};
-
 	} catch (error) {
-
 		if (error instanceof FirebaseError) {
 			return {
 				success: false,

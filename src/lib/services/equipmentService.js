@@ -1,14 +1,7 @@
 import { db } from '$lib/firebase/firebase';
 import { FirebaseError } from 'firebase/app';
 
-import {
-	collection,
-	addDoc,
-	getDocs,
-	query,
-	where,
-	serverTimestamp
-} from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, serverTimestamp } from 'firebase/firestore';
 
 /**
  * Add Equipment
@@ -45,22 +38,17 @@ export async function addEquipment(equipment) {
 
 			department: equipment.department,
 
-total: Number(equipment.total),
+			total: Number(equipment.total),
 
-available: Number(equipment.total),
+			available: Number(equipment.total),
 
-returnWithinDays: Number(
-	equipment.returnWithinDays
-),
+			returnWithinDays: Number(equipment.returnWithinDays),
 
-description: equipment.description.trim(),
+			description: equipment.description.trim(),
 
-image: equipment.image,
+			image: equipment.image,
 
-			status:
-				Number(equipment.total) > 0
-					? 'Available'
-					: 'Out of Stock',
+			status: Number(equipment.total) > 0 ? 'Available' : 'Out of Stock',
 
 			createdAt: serverTimestamp(),
 

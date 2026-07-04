@@ -1,25 +1,12 @@
 <script>
-	let {
-		selectedDepartment = 'All',
-		onSelect = () => {}
-	} = $props();
+	let { selectedDepartment = 'All', onSelect = () => {} } = $props();
 
-	const departments = [
-		'All',
-		'Computer',
-		'Physics',
-		'Chemistry',
-		'Botany',
-		'Zoology'
-	];
+	const departments = ['All', 'Computer Science', 'Physics', 'Chemistry', 'Botany', 'Zoology'];
 </script>
 
 <div class="rounded-3xl bg-white p-5 shadow-lg">
-
 	<div class="flex flex-wrap justify-center gap-3">
-
 		{#each departments as department (department)}
-
 			<button
 				type="button"
 				class={`rounded-full px-5 py-2 font-semibold transition-all duration-300 ${
@@ -31,9 +18,6 @@
 			>
 				{department}
 			</button>
-
 		{/each}
-
 	</div>
-
 </div>

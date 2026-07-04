@@ -3,58 +3,45 @@
 </script>
 
 <div class="rounded-3xl bg-white p-5 shadow-lg sm:p-8">
-	<h2
-		class="mb-6 text-2xl font-bold text-blue-900 sm:text-3xl"
-	>
+	<h2 class="mb-6 text-2xl font-bold text-blue-900 sm:text-3xl">
 		{equipment.name}
 	</h2>
 
 	<div class="space-y-5">
-
 		<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
-			<span class="font-bold text-blue-800">
-				Department :
-			</span>
+			<span class="font-bold text-blue-800"> Department : </span>
 
 			<span class="text-slate-700">
 				{equipment.department}
 			</span>
 		</div>
 
-<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
-	<span class="font-bold text-blue-800">
-		Available Quantity :
-	</span>
+		<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+			<span class="font-bold text-blue-800"> Available Quantity : </span>
 
-	<span class="text-slate-700">
-		{equipment.available}
-	</span>
-</div>
+			<span class="text-slate-700">
+				{equipment.available}
+			</span>
+		</div>
 
-<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
-	<span class="font-bold text-blue-800">
-		Total Quantity :
-	</span>
+		<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+			<span class="font-bold text-blue-800"> Total Quantity : </span>
 
-	<span class="text-slate-700">
-		{equipment.total}
-	</span>
-</div>
+			<span class="text-slate-700">
+				{equipment.total}
+			</span>
+		</div>
 
-<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
-	<span class="font-bold text-blue-800">
-		Return Within :
-	</span>
+		<div class="flex flex-col gap-1 sm:flex-row sm:items-center">
+			<span class="font-bold text-blue-800"> Return Within : </span>
 
-	<span class="text-slate-700">
-		{equipment.returnWithinDays} Days
-	</span>
-</div>
+			<span class="text-slate-700">
+				{equipment.returnWithinDays} Days
+			</span>
+		</div>
 
 		<div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-			<span class="font-bold text-blue-800">
-				Status :
-			</span>
+			<span class="font-bold text-blue-800"> Status : </span>
 
 			<span
 				class={`w-fit rounded-full px-4 py-2 text-sm font-semibold ${getStatusColor(equipment.status)}`}
@@ -62,22 +49,13 @@
 				{equipment.status}
 			</span>
 		</div>
-
 	</div>
 
 	<div class="mt-8">
+		<h3 class="mb-3 text-lg font-bold text-blue-900 sm:text-xl">Description</h3>
 
-		<h3
-			class="mb-3 text-lg font-bold text-blue-900 sm:text-xl"
-		>
-			Description
-		</h3>
-
-		<p
-			class="text-sm leading-relaxed text-slate-600 sm:text-base"
-		>
+		<p class="text-sm leading-relaxed text-slate-600 sm:text-base">
 			{equipment.description}
 		</p>
-
 	</div>
 </div>
