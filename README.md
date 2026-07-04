@@ -1,42 +1,146 @@
-# sv
+# Lab Equipment Booking System
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A web-based Lab Equipment Booking System developed for Sona College of Technology to simplify laboratory equipment management and booking.
 
-## Creating a project
+## Project Overview
 
-If you're seeing this, you've probably already done this step. Congrats!
+The Lab Equipment Booking System enables students to view available laboratory equipment, place booking requests, and manage their bookings. Administrators can manage equipment inventory, approve or reject booking requests, handle equipment returns, and monitor equipment availability through a centralized dashboard.
 
-```sh
-# create a new project
-npx sv create my-app
+## Features
+
+### Student Module
+
+- Student Registration
+- Student Login
+- Forgot Password
+- Dashboard
+- Equipment Browsing
+- Equipment Search and Filter
+- Equipment Details
+- Equipment Booking
+- Current Booking Status
+- Booking History
+- Student Profile Management
+
+### Admin Module
+
+- Admin Login
+- Dashboard with Statistics
+- Add Equipment
+- Edit Equipment
+- Delete Equipment
+- Manage Equipment
+- Booking Request Management
+- Approve / Reject Booking Requests
+- Equipment Return Management
+- Low Stock Alerts
+- Success Notifications
+- Delete Confirmation Dialogs
+
+## Technologies Used
+
+### Frontend
+
+- SvelteKit
+- Tailwind CSS
+- JavaScript
+
+### Backend
+
+- Node.js
+- Express.js
+
+### Database
+
+- Firebase Authentication
+- Cloud Firestore
+
+## Project Structure
+
+```
+src/
+ ├── lib/
+ │    ├── components/
+ │    ├── services/
+ │    ├── firebase/
+ │    └── utils/
+ │
+ ├── routes/
+ │    ├── (admin)/
+ │    ├── (student)/
+ │    └── (auth)/
+ │
+ └── app.html
+
+backend/
 ```
 
-To recreate this project with the same configuration:
+## Installation
 
-```sh
-# recreate this project
-npx sv@0.16.1 create --template minimal --types jsdoc --add prettier eslint tailwindcss="plugins:typography,forms" --install npm lab-equipment-booking-system
+Clone the repository
+
+```bash
+git clone https://github.com/NareshVetrivel/Lab-Equipment-Booking-System.git
 ```
 
-## Developing
+Move into the project directory
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+```bash
+cd Lab-Equipment-Booking-System
+```
 
-```sh
+Install dependencies
+
+```bash
+npm install
+```
+
+Run the frontend
+
+```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+Run the backend
 
-To create a production version of your app:
-
-```sh
-npm run build
+```bash
+cd backend
+npm install
+npm start
 ```
 
-You can preview the production build with `npm run preview`.
+## Firebase Configuration
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+Create a Firebase project and enable:
+
+- Firebase Authentication
+- Cloud Firestore
+
+Update the Firebase configuration inside:
+
+```
+src/lib/firebase/firebase.js
+```
+
+Also configure Firebase Admin SDK inside:
+
+```
+backend/firebase-admin.js
+```
+
+## Deployment
+
+- GitHub
+- Vercel
+
+## Project Status
+
+Completed
+
+## Author
+
+**Naresh Vetrivel**
+
+Master of Computer Applications (MCA)
+
+Sona College of Technology
